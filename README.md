@@ -31,7 +31,7 @@ This repository contains the code for our project **TRANSLATION SYSTEM FOR CONNE
 
 The goal of this project is to **...**
 
-This project was developed by the following team :
+This project is developed by the following team :
 
 - Keyne Dupont ([GitHub](https://github.com/) / [LinkedIn](https://www.linkedin.com/in/keyne-dupont/))
 - Yves Marc ([GitHub](https://github.com/) / [LinkedIn](http://linkedin.com/))
