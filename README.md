@@ -27,7 +27,7 @@ You can also add a brief presentation of the team members with links to your res
 
 **Example:**
 
-This repository contains the code for our project **Système de traduction adapté aux lunettes connectées**, developed during our [Data Scientist training](https://datascientest.com/en/data-scientist-course) at [DataScientest](https://datascientest.com/).
+This repository contains the code for our project **TRANSLATION SYSTEM FOR CONNECTED GLASSES**, developed during our [Data Scientist training](https://datascientest.com/en/data-scientist-course) at [DataScientest](https://datascientest.com/).
 
 The goal of this project is to **...**
 
