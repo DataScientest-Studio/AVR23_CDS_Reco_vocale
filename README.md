@@ -17,7 +17,7 @@ You will have to modify different sections of this README.md to include the nece
 
 **Streamlit Application**
 
-A [Streamlit](./streamlit_app/app.py) application template (https://streamlit.io/) is available in the [streamlit_app](./streamlit_app) folder. You can use this template to start with your project.
+A [Streamlit application](./streamlit_app/app.py) application template (https://streamlit.io/) is available in the [streamlit_app](./streamlit_app) folder. You can use this template to start with your project.
 
 ## Presentation and Installation
 
