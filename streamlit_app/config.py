@@ -39,4 +39,4 @@ TEAM_MEMBERS = [
 
 ]
 
-PROMOTION = "Promotion Continuous Data Scientist - April 2023"
+PROMOTION = "Promotion Continuous - Data Scientist - April 2023""
