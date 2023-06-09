@@ -4,7 +4,7 @@
 
 This repository contains the files needed to initialize a project for your [DataScientest](https://datascientest.com/) training.
 
-It contains mainly the present README.md file and an [application](./streamlit_app) template [Streamlit](https://streamlit.io/) (in folder 'streamlit_app').
+It contains mainly the present README.md file and an [application](./streamlit_app/app.py) template [Streamlit](https://streamlit.io/) (in folder [streamlit_app](./streamlit_app)).
 
 **README**
 
