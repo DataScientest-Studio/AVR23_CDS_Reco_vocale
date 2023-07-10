@@ -35,7 +35,6 @@ This project is developed by the following team :
 
 - Keyne Dupont ([GitHub](https://github.com/) / [LinkedIn](https://www.linkedin.com/in/keyne-dupont/))
 - Yves Marc ([GitHub](https://github.com/) / [LinkedIn](http://linkedin.com/))
-- Louise Pereira ([GitHub](https://github.com/) / [LinkedIn](https://www.linkedin.com/in/louise-edith-pereira-697168271/))
 - Tia Ratsimbason ([GitHub](https://github.com/) / [LinkedIn](https://www.linkedin.com/in/tia-ratsimbason-42110887/))
 - Olivier Renouard ([GitHub](https://github.com/Demosthene-OR) / [LinkedIn](https://www.linkedin.com/in/olivier-renouard-b6b8a535/))
 
