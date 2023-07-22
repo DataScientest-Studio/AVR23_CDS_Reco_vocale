@@ -87,8 +87,8 @@ tranquille;quiet
 l'automne;autumn
 été;summer
 france;france
-mois;
-de;
+mois;month
+de;of
 mai;may
 frisquet;chilly
 déteste;dislikes
@@ -105,7 +105,7 @@ redouté;feared
 que;that
 requin;shark
 humide;wet
-d';
+d';of
 sec;dry
 enneigée;snowy
 nous;we
@@ -208,13 +208,12 @@ blanc;white
 volant;driving
 gros;big
 où;where
-États;states
 chien;dog
 leurs;their
 pourquoi;why
 l'automobile;automobile
 pourrait;might
-se;
+se;herself
 rendre;go
 prévoyons;plan
 maillot;jersey
