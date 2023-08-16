@@ -37,7 +37,7 @@ This project is developed by the following team :
 - Tia Ratsimbason ([GitHub](https://github.com/) / [LinkedIn](https://www.linkedin.com/in/tia-ratsimbason-42110887/))
 - Olivier Renouard ([GitHub](https://github.com/Demosthene-OR) / [LinkedIn](https://www.linkedin.com/in/olivier-renouard-b6b8a535/))
 
-You can browse and run the [notebooks](./notebooks). 
+You can browse and run the [notebooks](./). 
 
 You will need to install the dependencies (in a dedicated environment) :
 
