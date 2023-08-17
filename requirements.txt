@@ -17,5 +17,5 @@ cudatoolkit==11.3.1
 cudnn==8.1.0.77
 tensorflow==2.10.0
 keras==2.10.0
-keras_nlp==
+keras_nlp==0.6.0
 transformers==4.30.2
