@@ -4,8 +4,8 @@ import numpy as np
 from PIL import Image
 
 
-title = "Second tab"
-sidebar_name = "Second Tab"
+title = "Traduction Sequence à Sequence"
+sidebar_name = "Traduction Seq2Seq"
 
 
 def run():

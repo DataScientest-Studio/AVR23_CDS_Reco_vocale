@@ -7,22 +7,12 @@ Config file for Streamlit App
 from member import Member
 
 
-TITLE = "My Awesome App"
+TITLE = "Système de traduction adapté aux lunettes connectées"
 
 TEAM_MEMBERS = [
     Member(
         name="Keyne Dupont",
         linkedin_url="https://www.linkedin.com/in/keyne-dupont/",
-        github_url="https://github.com/charlessutton",
-    ),
-    Member(
-        name="Yves Marc",
-        linkedin_url="https://www.linkedin.com/in/charlessuttonprofile/",
-        github_url="https://github.com/charlessutton",
-    ),    
-    Member(
-        name="Louise Pereira",
-        linkedin_url="https://www.linkedin.com/in/louise-edith-pereira-697168271/",
         github_url="https://github.com/charlessutton",
     ),
     Member(
@@ -39,4 +29,4 @@ TEAM_MEMBERS = [
 
 ]
 
-PROMOTION = "Promotion Continuous - Data Scientist - April 2023""
+PROMOTION = "Promotion Continuous - Data Scientist - April 2023"
