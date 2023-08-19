@@ -28,7 +28,7 @@ TABS = OrderedDict(
         (intro.sidebar_name, intro),
         (exploration_tab.sidebar_name, exploration_tab),
         (data_viz_tab.sidebar_name, data_viz_tab),
-        (modelisatio0n_dict_tab.sidebar_name, modelisation_dict_tab),
+        (modelisation_dict_tab.sidebar_name, modelisation_dict_tab),
         (modelisation_seq2seq_tab.sidebar_name, modelisation_seq2seq_tab),
     ]
 )
@@ -36,7 +36,7 @@ TABS = OrderedDict(
 
 def run():
     st.sidebar.image(
-        "assets/logo-datascientest.png",
+        "https://dst-studio-template.s3.eu-west-3.amazonaws.com/logo-datascientest.png",
         width=200,
     )
     tab_name = st.sidebar.radio("", list(TABS.keys()), 0)

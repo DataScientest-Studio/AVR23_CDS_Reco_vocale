@@ -33,7 +33,7 @@ footer {
 /* Sidebar */
 
 section[data-testid="stSidebar"] > div {
-  background-color: #73b5d9;
+  background-color: #00cccc; /*#73b5d9;*/
   padding-top: 2rem;
   padding-left: 1.5rem;
 }
@@ -47,7 +47,7 @@ section[data-testid="stSidebar"] button[kind="icon"] {
 }
 
 section[data-testid="stSidebar"] .st-bk {
-  background-color: #73b5d9;
+  background-color: #00cccc; /*#73b5d9;*/
 }
 
 section[data-testid="stSidebar"] .st-c0 {
