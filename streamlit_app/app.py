@@ -11,7 +11,7 @@ from tabs import intro, exploration_tab, data_viz_tab, modelisation_dict_tab, mo
 
 st.set_page_config(
     page_title=config.TITLE,
-    page_icon="https://datascientest.com/wp-content/uploads/2020/03/cropped-favicon-datascientest-1-32x32.png",
+    page_icon="assets/faviconV2.png",
 )
 
 with open("style.css", "r") as f:
