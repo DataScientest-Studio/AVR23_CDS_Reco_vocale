@@ -4,8 +4,8 @@ import numpy as np
 from PIL import Image
 
 
-title = "Exploration"
-sidebar_name = "Exploration"
+title = "Exploration et Preprocessing"
+sidebar_name = "Exploration et Preprocessing"
 
 
 def run():
