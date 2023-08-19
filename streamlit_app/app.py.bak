@@ -2,10 +2,10 @@ from collections import OrderedDict
 
 import streamlit as st
 
-# Define TITLE, TEAM_MEMBERS and PROMOTION values, in config.py.
+# TODO : change TITLE, TEAM_MEMBERS and PROMOTION values in config.py.
 import config
 
-# Tabs in the ./tabs folder, imported here.
+# TODO : you can (and should) rename and add tabs in the ./tabs folder, and import them here.
 from tabs import intro, exploration_tab, data_viz_tab, modelisation_dict_tab, modelisation_seq2seq_tab
 
 
@@ -20,7 +20,7 @@ with open("style.css", "r") as f:
 st.markdown(f"<style>{style}</style>", unsafe_allow_html=True)
 
 
-# Add tab in this ordered dict by
+# TODO: add new and/or renamed tab in this ordered dict by
 # passing the name in the sidebar as key and the imported tab
 # as value as follow :
 TABS = OrderedDict(
