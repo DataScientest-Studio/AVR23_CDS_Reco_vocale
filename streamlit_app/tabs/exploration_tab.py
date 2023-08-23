@@ -36,7 +36,7 @@ bleu_score_to_do = True
 # Première ligne à charger
 first_line = 0
 # Nombre maximum de lignes à charger
-max_lines = 140
+max_lines = 140000
 if ((first_line+max_lines)>137860):
     first_line = max(137860-max_lines,0)
     
@@ -306,7 +306,7 @@ def run():
     # 
     st.write("## **Données d'entrée :**\n")
     Langue = st.radio('Langue:',('Anglais','Français'), horizontal=True)
-    first_line = st.slider('No de la premiere ligne à analyser'':',1,137860)-1
+    first_line = st.slider('No de la premiere ligne à analyser'':',0,137859)
     max_lines = st.select_slider('Nombre de lignes à analyser (Attention, si Max pas de lemmatisation)'':',
                               options=[1,5,10,15,100, 1000,'Max'])
     if max_lines=='Max':
@@ -322,6 +322,7 @@ def run():
             st.write(str(first_line+i),": ", full_txt_en[first_line+i])
         else:
             st.write(str(first_line+i),": ", full_txt_fr[first_line+i])
+    st.write("")
 
     #Chargement des textes sélectionnés dans les 2 langues (max lignes = max_lines)
     txt_en = load_data('../data/small_vocab_en')
