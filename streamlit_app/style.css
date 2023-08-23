@@ -6,6 +6,9 @@ h4 {
   color: #000000;
 }
 */
+p {
+    margin-bottom:0.1rem;
+}
 
 code {
   color: #1ec3bc;
