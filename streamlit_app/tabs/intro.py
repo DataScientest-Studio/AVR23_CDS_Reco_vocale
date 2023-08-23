@@ -1,13 +1,14 @@
 import streamlit as st
 
 
+
 title = "Système de traduction adapté aux lunettes connectées"
 sidebar_name = "Introduction"
 
 
 def run():
 
-    # Choose between one of these GIFs
+    # TODO: choose between one of these GIFs
     # st.image("https://dst-studio-template.s3.eu-west-3.amazonaws.com/1.gif")
     # st.image("https://dst-studio-template.s3.eu-west-3.amazonaws.com/2.gif")
     # st.image("https://dst-studio-template.s3.eu-west-3.amazonaws.com/3.gif")
