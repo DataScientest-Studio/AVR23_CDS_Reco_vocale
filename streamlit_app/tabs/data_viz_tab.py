@@ -157,7 +157,7 @@ def graphe_co_occurence(txt_split,corpus):
     pos=nx.spring_layout(G, k=5)  # position des nodes
 
 
-    plt.figure(figsize=(30, 30));
+    fig = plt.figure();
     plt.title("Co-occurence des mots anglais dans les phrases", fontsize=30, color='b',fontweight="bold")
 
     nx.draw_networkx_labels(G,pos,dic,font_size=15, font_color='b', bbox={"boxstyle": "round,pad=0.2", "fc":"white", "ec":"black", "lw":"0.8", "alpha" : 0.8} )
@@ -168,9 +168,8 @@ def graphe_co_occurence(txt_split,corpus):
                            alpha=1);
     nx.draw_networkx_edges(G,pos,width=1.0,alpha=0.5)
 
-
     plt.axis("off");
-
+    st.pyplot(fig)
 
 def run():
     
