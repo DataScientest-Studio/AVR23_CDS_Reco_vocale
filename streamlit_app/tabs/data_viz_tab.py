@@ -162,9 +162,9 @@ def graphe_co_occurence(txt_split,corpus):
 
     nx.draw_networkx_labels(G,pos,dic,font_size=15, font_color='b', bbox={"boxstyle": "round,pad=0.2", "fc":"white", "ec":"black", "lw":"0.8", "alpha" : 0.8} )
     nx.draw_networkx_nodes(G,pos, dic,
-                           node_color=range(len(corpus)),
+                           # node_color=range(len(corpus)),
                            node_size=900,
-                           cmap=plt.cm.Reds_r,
+                           # cmap=plt.cm.Reds_r,
                            alpha=1);
     nx.draw_networkx_edges(G,pos,width=1.0,alpha=0.5)
 
