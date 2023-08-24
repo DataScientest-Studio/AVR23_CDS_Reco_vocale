@@ -111,13 +111,17 @@ def drop_df_null_col(df):
     # Drop the columns with all values as 0
     return df.drop(columns=columns_to_drop)
 
-def dist_frequence_mots(df_count_word):
-
-    df_count_word = drop_df_null_col(df_count_word)
+def calcul_occurence(df_count_word):
     nb_occurences = pd.DataFrame(df_count_word.sum().sort_values(axis=0,ascending=False))
     nb_occurences.columns = ['occurences']
     nb_occurences.index.name = 'mot'
     nb_occurences['mots'] = nb_occurences.index
+    return nb_occurences
+
+def dist_frequence_mots(df_count_word):
+    
+    df_count_word = drop_df_null_col(df_count_word)
+    nb_occurences = calcul_occurence(df_count_word)
     
     sns.set()
     fig = plt.figure() #figsize=(4,4)
@@ -169,11 +173,54 @@ def graphe_co_occurence(txt_split,corpus):
                            alpha=0.8);
     nx.draw_networkx_edges(G,pos,width=1.0,alpha=0.1)
 
-    # plt.axis("off");
+    plt.axis("off");
     st.pyplot(fig)
 
-def proximite():
-    print("Hello")
+def proximite(df_count_word, corpus):
+    from sklearn.manifold import TSNE
+
+    df_count_word = drop_df_null_col(df_count_word)
+    nb_occurences = calcul_occurence(df_count_word)
+    
+    "Creates and TSNE model and plots it"
+    labels = []
+    tokens = []
+
+    nb_words = min(50,len(corpus))
+    words_en = nb_occurences.iloc[:nb_words,0].index.tolist()
+    # words_fr = (we_dict_EN_FR[words_en].T)['Francais'].tolist()
+
+    for word in words_en: 
+        #tokens.append(en_model[word])
+        labels.append(word)
+        # for word in words_fr: 
+        #    tokens.append(fr_model[word])
+        #    labels.append(word)
+        #    tokens = pd.DataFrame(tokens)
+
+    tsne_model = TSNE(perplexity=6, n_components=2, init='pca', n_iter=5000, random_state=23)
+    new_values = tsne_model.fit_transform(tokens)
+
+    fig=plt.figure() # figsize=(16, 16)
+    x = []
+    y = []
+    for value in new_values:
+        x.append(value[0])
+        y.append(value[1])
+        
+        for i in range(len(x)):
+            if i<nb_words  : color='green'
+            else: color='blue'
+            plt.scatter(x[i],y[i])
+            plt.annotate(labels[i],
+                         xy=(x[i], y[i]),
+                         xytext=(5, 2),
+                         textcoords='offset points',
+                         ha='right',
+                         va='bottom',
+                         color= color)
+            plt.title("Proximité des mots anglais avec leur traduction", fontsize=15, color="green")
+    st.pyplot(fig)
     
 
 def run():
@@ -258,14 +305,11 @@ def run():
     with tab4:
         st.subheader("Co-occurence des mots dans une phrase") 
         if (Langue == 'Anglais'):
-            graphe_co_occurence(txt_split_en,corpus_en)
+            graphe_co_occurence(txt_split_en[:1000],corpus_en)
         else:
-            graphe_co_occurence(txt_split_fr,corpus_fr)
+            graphe_co_occurence(txt_split_fr[:1000],corpus_fr)
     with tab5:
         st.subheader("Proximité sémantique des mots") 
-        if (Langue == 'Anglais'):
-            dist_frequence_mots(df_count_word_en)
-        else:
-            dist_frequence_mots(df_count_word_fr)
+        # proximite(df_count_word_en, corpus_en)
         
 
