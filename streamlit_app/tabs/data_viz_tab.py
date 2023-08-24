@@ -16,7 +16,6 @@ from wordcloud import WordCloud
 import nltk
 from nltk.corpus import stopwords
 
-
 title = "Data Vizualization"
 sidebar_name = "Data Vizualization"
 
@@ -30,7 +29,8 @@ max_lines = 140000
 
 if ((first_line+max_lines)>137860):
     first_line = max(137860-max_lines,0)
-    
+
+@st.cache_data 
 def load_data(path):
     
     input_file = os.path.join(path)
@@ -42,7 +42,39 @@ def load_data(path):
     
     data = data.split('\n')
     return data[first_line:min(len(data),first_line+max_lines)]
+
+def load_preprocessed_data(path,data_type):
     
+    input_file = os.path.join(path)
+    if data_type == 1:
+        return pd.read_csv(input_file, encoding="utf-8", index_col=0)
+    else:
+        with open(input_file, "r",  encoding="utf-8") as f:
+            data = f.read()
+            data = data.split('\n')
+        if data_type==0:
+            data=data[:-1]
+        elif data_type == 2:
+            data=[eval(i) for i in data[:-1]]
+        elif data_type ==3:
+            data2 = []
+            for d in data[:-1]:
+                data2.append(ast.literal_eval(d))
+            data=data2
+        return data
+    
+@st.cache_data  
+def load_all_preprocessed_data(lang):
+    txt           =load_preprocessed_data('../data/preprocess_txt_'+lang,0)
+    corpus        =load_preprocessed_data('../data/preprocess_corpus_'+lang,0)
+    txt_split     = load_preprocessed_data('../data/preprocess_txt_split_'+lang,3)
+    df_count_word = pd.concat([load_preprocessed_data('../data/preprocess_df_count_word1_'+lang,1), load_preprocessed_data('../data/preprocess_df_count_word2_'+lang,1)]) 
+    sent_len      =load_preprocessed_data('../data/preprocess_sent_len_'+lang,2)
+    sent_wo_sw_len=load_preprocessed_data('../data/preprocess_sent_wo_sw_len_'+lang,2)
+    sent_lem_len  =load_preprocessed_data('../data/preprocess_sent_lem_len_'+lang,2)
+    return txt, corpus, txt_split, df_count_word,sent_len, sent_wo_sw_len, sent_lem_len
+
+@st.cache_data(ttl='1h')      
 def plot_word_cloud(text, title, masque, stop_words, background_color = "white"):
     
     mask_coloring = np.array(Image.open(str(masque)))
@@ -69,18 +101,44 @@ def plot_word_cloud(text, title, masque, stop_words, background_color = "white")
     plt.imshow(wc)
     # plt.show()
     st.pyplot(fig)
+ 
+def drop_df_null_col(df):
+    # Check if all values in each column are 0
+    columns_to_drop = df.columns[df.eq(0).all()]
+    # Drop the columns with all values as 0
+    return df.drop(columns=columns_to_drop)
+
+def frequence_mots(df_count_word):
+
+
+    df_count_word = drop_df_null_col(df_count_word)
+    nb_occurences = pd.DataFrame(df_count_word.sum().sort_values(axis=0,ascending=False))
+    nb_occurences.columns = ['occurences']
+    nb_occurences.index.name = 'mot'
+    nb_occurences['mots'] = nb_occurences.index
+    
+    sns.set()
+    fig = plt.figure() #figsize=(4,4)
+    plt.title("Nombre d'apparitions des mots", fontsize=16)
+
+    chart = sns.barplot(x='mots',y='occurences',data=nb_occurences.iloc[:40]); 
+    chart.set_xticklabels(chart.get_xticklabels(), rotation=45, horizontalalignment='right', size=8)
+    st.pyplot(fig)
 
 def run():
     
-    global max_lines, first_line
+    global max_lines, first_line, Langue
     
     st.title(title)
 
     #Chargement des textes complet dans les 2 langues
     first_line=0
     max_lines = 140000
-    full_txt_en = load_data('../data/small_vocab_en')
-    full_txt_fr = load_data('../data/small_vocab_fr')
+    full_txt_en, full_corpus_en, full_txt_split_en, full_df_count_word_en,full_sent_len_en, \
+    full_sent_wo_sw_len_en, full_sent_lem_len_en = load_all_preprocessed_data('en')
+    full_txt_fr, full_corpus_fr, full_txt_split_fr, full_df_count_word_fr,full_sent_len_fr, \
+    full_sent_wo_sw_len_fr, full_sent_lem_len_fr = load_all_preprocessed_data('fr')
+
     # 
     st.write("## **Données d'entrée :**\n")
     Langue = st.radio('Langue:',('Anglais','Français'), horizontal=True)
@@ -93,30 +151,35 @@ def run():
         first_line = max(137860-max_lines,0)
      
     # Chargement des textes sélectionnés (max lignes = max_lines)
+    last_line = first_line+max_lines
     if (Langue == 'Anglais'):
-        txt_en = load_data('../data/small_vocab_en')
+        txt_en = full_txt_en[first_line:last_line]
+        corpus_en = full_corpus_en[first_line:last_line]
+        txt_split_en = full_txt_split_en[first_line:last_line]
+        df_count_word_en =full_df_count_word_en.loc[first_line:last_line-1]
+        sent_len_en = full_sent_len_en[first_line:last_line]
+        sent_wo_sw_len_en = full_sent_wo_sw_len_en[first_line:last_line]
+        sent_lem_len_en = full_sent_lem_len_en[first_line:last_line]
     else:
-        txt_fr = load_data('../data/small_vocab_fr')
+        txt_fr = full_txt_fr[first_line:last_line]
+        corpus_fr = full_corpus_fr[first_line:last_line]
+        txt_split_fr = full_txt_split_fr[first_line:last_line]
+        df_count_word_fr =full_df_count_word_fr.loc[first_line:last_line-1]
+        sent_len_fr = full_sent_len_fr[first_line:last_line]
+        sent_wo_sw_len_fr = full_sent_wo_sw_len_fr[first_line:last_line]
+        sent_lem_len_fr = full_sent_lem_len_fr[first_line:last_line]
+        
     for i in range(min(15,max_lines)):
         if (Langue == 'Anglais'):
             st.write(str(first_line+i),": ", full_txt_en[first_line+i])
         else:
             st.write(str(first_line+i),": ", full_txt_fr[first_line+i])
     st.write("")
-        
+
     tab1, tab2, tab3, tab4, tab5 = st.tabs(["World Cloud", "Frequence","Distribution longueur", "Co-occurence", "Proximité"])
+
     with tab1:
         st.subheader("World Cloud")
-    with tab2:
-        st.subheader("Frequence d'apparition des mots")
-    with tab3:
-        st.subheader("Distribution des longueurs de phases")
-    with tab4:
-        st.subheader("Co-occurence des mots dans une phrase") 
-    with tab5:
-        st.subheader("Proximité sémantique des mots") 
-        
-    with tab1:
         if (Langue == 'Anglais'):
             text = ""
             # Initialiser la variable des mots vides
@@ -129,3 +192,30 @@ def run():
             stop_words = set(stopwords.words('french'))
             for e in txt_fr : text += e
             plot_word_cloud(text,"Mots français du corpus", "../images/coeur.png", stop_words)
+            
+    with tab2:
+        st.subheader("Frequence d'apparition des mots")
+        if (Langue == 'Anglais'):
+            frequence_mots(df_count_word_en)
+        else:
+            frequence_mots(df_count_word_fr)
+    with tab3:
+        st.subheader("Distribution des longueurs de phases")
+        if (Langue == 'Anglais'):
+            frequence_mots(df_count_word_en)
+        else:
+            frequence_mots(df_count_word_fr)
+    with tab4:
+        st.subheader("Co-occurence des mots dans une phrase") 
+        if (Langue == 'Anglais'):
+            frequence_mots(df_count_word_en)
+        else:
+            frequence_mots(df_count_word_fr)
+    with tab5:
+        st.subheader("Proximité sémantique des mots") 
+        if (Langue == 'Anglais'):
+            frequence_mots(df_count_word_en)
+        else:
+            frequence_mots(df_count_word_fr)
+        
+

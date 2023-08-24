@@ -24,6 +24,7 @@ import spacy_streamlit
 import warnings
 warnings.filterwarnings('ignore')
 
+
 title = "Exploration et Preprocessing"
 sidebar_name = "Exploration et Preprocessing"
 
@@ -43,7 +44,7 @@ if ((first_line+max_lines)>137860):
 with contextlib.redirect_stdout(open(os.devnull, "w")):
     nltk.download('stopwords')
 
-
+@st.cache_data(ttl='1h')  
 def load_data(path):
     
     input_file = os.path.join(path)
@@ -325,8 +326,8 @@ def run():
     st.write("")
 
     #Chargement des textes sélectionnés dans les 2 langues (max lignes = max_lines)
-    txt_en = load_data('../data/small_vocab_en')
-    txt_fr = load_data('../data/small_vocab_fr')   
+    txt_en = full_txt_en[first_line:first_line+max_lines]
+    txt_fr = full_txt_fr[first_line:first_line+max_lines]   
     # Elimination des phrases non traduites
     txt_en, txt_fr = clean_untranslated_sentence(txt_en, txt_fr)
     
