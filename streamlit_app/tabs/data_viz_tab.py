@@ -108,8 +108,7 @@ def drop_df_null_col(df):
     # Drop the columns with all values as 0
     return df.drop(columns=columns_to_drop)
 
-def frequence_mots(df_count_word):
-
+def dist_frequence_mots(df_count_word):
 
     df_count_word = drop_df_null_col(df_count_word)
     nb_occurences = pd.DataFrame(df_count_word.sum().sort_values(axis=0,ascending=False))
@@ -123,6 +122,16 @@ def frequence_mots(df_count_word):
 
     chart = sns.barplot(x='mots',y='occurences',data=nb_occurences.iloc[:40]); 
     chart.set_xticklabels(chart.get_xticklabels(), rotation=45, horizontalalignment='right', size=8)
+    st.pyplot(fig)
+    
+def dist_longueur_phrase(sent_len):
+    sns.set()
+    row_nb =1
+    fig = plt.figure() # figsize=(12, 6*row_nb)
+
+    fig.tight_layout()
+    chart = sns.histplot(data=sent_len, color='r', binwidth=1, binrange=[3,18])
+    chart.set(title='Distribution du nb de mots/phrase'); 
     st.pyplot(fig)
 
 def run():
@@ -169,11 +178,10 @@ def run():
         sent_wo_sw_len_fr = full_sent_wo_sw_len_fr[first_line:last_line]
         sent_lem_len_fr = full_sent_lem_len_fr[first_line:last_line]
         
-    for i in range(min(15,max_lines)):
-        if (Langue == 'Anglais'):
-            st.write(str(first_line+i),": ", full_txt_en[first_line+i])
-        else:
-            st.write(str(first_line+i),": ", full_txt_fr[first_line+i])
+    if (Langue=='Anglais'):
+        st.dataframe(pd.DataFrame(data=full_txt_en,columns=['Texte']).loc[first_line:last_line-1])
+    else:
+        st.dataframe(pd.DataFrame(data=full_txt_fr,columns=['Texte']).loc[first_line:last_line-1])
     st.write("")
 
     tab1, tab2, tab3, tab4, tab5 = st.tabs(["World Cloud", "Frequence","Distribution longueur", "Co-occurence", "Proximité"])
@@ -196,26 +204,26 @@ def run():
     with tab2:
         st.subheader("Frequence d'apparition des mots")
         if (Langue == 'Anglais'):
-            frequence_mots(df_count_word_en)
+            dist_frequence_mots(df_count_word_en)
         else:
-            frequence_mots(df_count_word_fr)
+            dist_frequence_mots(df_count_word_fr)
     with tab3:
         st.subheader("Distribution des longueurs de phases")
         if (Langue == 'Anglais'):
-            frequence_mots(df_count_word_en)
+            dist_longueur_phrase(sent_len_en)
         else:
-            frequence_mots(df_count_word_fr)
+            dist_longueur_phrase(sent_len_fr)
     with tab4:
         st.subheader("Co-occurence des mots dans une phrase") 
         if (Langue == 'Anglais'):
-            frequence_mots(df_count_word_en)
+            dist_frequence_mots(df_count_word_en)
         else:
-            frequence_mots(df_count_word_fr)
+            dist_frequence_mots(df_count_word_fr)
     with tab5:
         st.subheader("Proximité sémantique des mots") 
         if (Langue == 'Anglais'):
-            frequence_mots(df_count_word_en)
+            dist_frequence_mots(df_count_word_en)
         else:
-            frequence_mots(df_count_word_fr)
+            dist_frequence_mots(df_count_word_fr)
         
 

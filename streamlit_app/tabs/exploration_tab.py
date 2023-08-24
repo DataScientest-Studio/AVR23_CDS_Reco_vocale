@@ -283,10 +283,10 @@ def preprocess_txt (data, lang):
     txt_n_unique_val=  pd.DataFrame(columns=corpus,index=range(nb_phrases), data=countvectors.todense()).astype(float)
     with tab1:
         st.write("\n**Nombre d'apparitions de chaque mot dans chaque phrase (Bag Of Words):**")
-        st.dataframe(txt_n_unique_val.iloc[:,:40].head(10))
+        st.dataframe(txt_n_unique_val.head(50)) # .iloc[:,:40].head(10)
     with tab2:
         st.write("\n**Nombre d'apparitions de chaque mot dans chaque phrase (Bag Of Words):**")
-        st.dataframe(txt_n_unique_val.iloc[:,:40].head(10))
+        st.dataframe(txt_n_unique_val.head(50))
     
   
     
@@ -318,11 +318,12 @@ def run():
         lemmatize_to_do = False
     else:
         lemmatize_to_do = True
-    for i in range(min(15,max_lines)):
-        if (Langue == 'Anglais'):
-            st.write(str(first_line+i),": ", full_txt_en[first_line+i])
-        else:
-            st.write(str(first_line+i),": ", full_txt_fr[first_line+i])
+        
+    last_line = first_line+max_lines
+    if (Langue=='Anglais'):
+        st.write(pd.DataFrame(data=full_txt_en,columns=['Texte']).loc[first_line:last_line-1])
+    else:
+        st.dataframe(pd.DataFrame(data=full_txt_fr,columns=['Texte']).loc[first_line:last_line-1])
     st.write("")
 
     #Chargement des textes sélectionnés dans les 2 langues (max lignes = max_lines)
