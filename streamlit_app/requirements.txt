@@ -19,3 +19,5 @@ pillow==9.4.0
 streamlit==1.23.1 
 spacy-streamlit
 pathlib
+gensim==4.3.1
+networkx

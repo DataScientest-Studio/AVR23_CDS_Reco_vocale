@@ -15,6 +15,9 @@ import seaborn as sns
 from wordcloud import WordCloud
 import nltk
 from nltk.corpus import stopwords
+from gensim import corpora
+import networkx as nx
+# from pyvis import network as nx
 
 title = "Data Vizualization"
 sidebar_name = "Data Vizualization"
@@ -126,13 +129,48 @@ def dist_frequence_mots(df_count_word):
     
 def dist_longueur_phrase(sent_len):
     sns.set()
-    row_nb =1
     fig = plt.figure() # figsize=(12, 6*row_nb)
 
     fig.tight_layout()
     chart = sns.histplot(data=sent_len, color='r', binwidth=1, binrange=[3,18])
     chart.set(title='Distribution du nb de mots/phrase'); 
     st.pyplot(fig)
+
+def graphe_co_occurence(txt_split,corpus):
+    dic = corpora.Dictionary(txt_split) # dictionnaire de tous les mots restant dans le token
+    # Equivalent (ou presque) de la DTM : DFM, Document Feature Matrix
+    dfm = [dic.doc2bow(tok) for tok in txt_split]
+
+    mes_labels = [k for k, v in dic.token2id.items()]
+
+    from gensim.matutils import corpus2csc
+    term_matrice = corpus2csc(dfm)
+
+    term_matrice = np.dot(term_matrice, term_matrice.T)
+
+    for i in range(len(mes_labels)):
+        term_matrice[i,i]= 0
+    term_matrice.eliminate_zeros()
+
+    G = nx.from_scipy_sparse_matrix(term_matrice)
+    G.add_nodes = dic
+    pos=nx.spring_layout(G, k=5)  # position des nodes
+
+
+    plt.figure(figsize=(30, 30));
+    plt.title("Co-occurence des mots anglais dans les phrases", fontsize=30, color='b',fontweight="bold")
+
+    nx.draw_networkx_labels(G,pos,dic,font_size=15, font_color='b', bbox={"boxstyle": "round,pad=0.2", "fc":"white", "ec":"black", "lw":"0.8", "alpha" : 0.8} )
+    nx.draw_networkx_nodes(G,pos, dic,
+                           node_color=range(len(corpus)),
+                           node_size=900,
+                           cmap=plt.cm.Reds_r,
+                           alpha=1);
+    nx.draw_networkx_edges(G,pos,width=1.0,alpha=0.5)
+
+
+    plt.axis("off");
+
 
 def run():
     
@@ -216,9 +254,9 @@ def run():
     with tab4:
         st.subheader("Co-occurence des mots dans une phrase") 
         if (Langue == 'Anglais'):
-            dist_frequence_mots(df_count_word_en)
+            graphe_co_occurence(txt_split_en,corpus_en)
         else:
-            dist_frequence_mots(df_count_word_fr)
+            graphe_co_occurence(txt_split_fr,corpus_fr)
     with tab5:
         st.subheader("Proximité sémantique des mots") 
         if (Langue == 'Anglais'):
