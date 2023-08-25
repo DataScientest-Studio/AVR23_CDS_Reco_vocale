@@ -18,7 +18,7 @@ pip install -r requirements.txt
 
 ## Streamlit App
 You can also run the **Streamlit App directly on the Cloud**: 
-**([Translation System for Connected Glasses](https://avr23-cds-translation.streamlit.app/) **
+**(Translation System for Connected Glasses](https://avr23-cds-translation.streamlit.app/) **
 
 To run the app (be careful with the paths of the files in the app):
 ```shell
