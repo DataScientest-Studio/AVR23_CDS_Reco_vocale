@@ -1,6 +1,6 @@
 ![Alt Whaooh!](./streamlit_app/assets/miss-honey-glasses-off.gif)
 
-**Introduction**
+## Introduction
 This repository contains the code for our project **TRANSLATION SYSTEM FOR CONNECTED GLASSES**, developed during our [Data Scientist training](https://datascientest.com/en/data-scientist-course) at [DataScientest](https://datascientest.com/).
 The purpose of this project is to explore and implement exploration techniques.
 
