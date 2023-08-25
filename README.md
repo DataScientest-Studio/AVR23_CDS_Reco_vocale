@@ -21,9 +21,9 @@ pip install -r requirements.txt
 ## Streamlit App
 You can also run the **Streamlit App directly on the Cloud**: 
 
-**(Translation System for Connected Glasses](https://avr23-cds-translation.streamlit.app/) **
+(Translation System for Connected Glasses](https://avr23-cds-translation.streamlit.app/)
 
-To run the app (be careful with the paths of the files in the app):
+To run the **app locally** (be careful with the paths of the files in the app):
 ```shell
 conda create --name my-awesome-streamlit python=3.9
 conda activate my-awesome-streamlit
