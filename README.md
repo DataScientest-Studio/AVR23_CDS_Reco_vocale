@@ -2,6 +2,7 @@
 
 ## Introduction
 This repository contains the code for our project **TRANSLATION SYSTEM FOR CONNECTED GLASSES**, developed during our [Data Scientist training](https://datascientest.com/en/data-scientist-course) at [DataScientest](https://datascientest.com/).
+
 The purpose of this project is to explore and implement exploration techniques.
 
 This project is developed by the following team :
@@ -11,6 +12,7 @@ This project is developed by the following team :
 
 ## Notebooks
 You can browse and run the **[notebooks](./notebooks)**. 
+
 To run the notebooks, you will need to install the dependencies (in a dedicated environment)
 ```
 pip install -r requirements.txt
@@ -18,6 +20,7 @@ pip install -r requirements.txt
 
 ## Streamlit App
 You can also run the **Streamlit App directly on the Cloud**: 
+
 **(Translation System for Connected Glasses](https://avr23-cds-translation.streamlit.app/) **
 
 To run the app (be careful with the paths of the files in the app):
