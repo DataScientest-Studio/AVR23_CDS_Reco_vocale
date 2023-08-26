@@ -247,7 +247,7 @@ def run():
     if max_lines=='Max':
         max_lines=137860
     if ((first_line+max_lines)>137860):
-        first_line = max(137860-max_lines,0)
+        max_lines = max(137860-first_line,0)
      
     # Chargement des textes sélectionnés (max lignes = max_lines)
     last_line = first_line+max_lines
