@@ -313,7 +313,7 @@ def run():
     if max_lines=='Max':
         max_lines=137860
     if ((first_line+max_lines)>137860):
-        first_line = max(137860-max_lines,0)
+        max_lines = max(137860-first_line,0)
     if ((max_lines-first_line)>1000): 
         lemmatize_to_do = False
     else:
