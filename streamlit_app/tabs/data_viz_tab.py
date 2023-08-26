@@ -46,6 +46,7 @@ def load_data(path):
     data = data.split('\n')
     return data[first_line:min(len(data),first_line+max_lines)]
 
+@st.cache_data 
 def load_preprocessed_data(path,data_type):
     
     input_file = os.path.join(path)
