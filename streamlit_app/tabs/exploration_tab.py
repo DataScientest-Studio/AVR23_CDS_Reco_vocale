@@ -161,7 +161,7 @@ def lemmatize(sentence,lang):
 
 def preprocess_txt (data, lang):
     
-    nltk.download('punkt')
+    # nltk.download('punkt')
     nltk.download('averaged_perceptron_tagger')
     
   
