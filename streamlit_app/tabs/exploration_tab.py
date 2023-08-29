@@ -24,6 +24,8 @@ from nltk.corpus import stopwords
 import warnings
 warnings.filterwarnings('ignore')
 
+nltk.download('punkt')
+nltk.download('averaged_perceptron_tagger')
 
 title = "Exploration et Preprocessing"
 sidebar_name = "Exploration et Preprocessing"
@@ -162,7 +164,7 @@ def lemmatize(sentence,lang):
 def preprocess_txt (data, lang):
     
     # nltk.download('punkt')
-    nltk.download('averaged_perceptron_tagger')
+    # nltk.download('averaged_perceptron_tagger')
     
   
     word_count = collections.Counter()
