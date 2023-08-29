@@ -75,9 +75,7 @@ def load_all_preprocessed_data(lang):
     txt_split     = load_preprocessed_data('../data/preprocess_txt_split_'+lang,3)
     df_count_word = pd.concat([load_preprocessed_data('../data/preprocess_df_count_word1_'+lang,1), load_preprocessed_data('../data/preprocess_df_count_word2_'+lang,1)]) 
     sent_len      =load_preprocessed_data('../data/preprocess_sent_len_'+lang,2)
-    sent_wo_sw_len=load_preprocessed_data('../data/preprocess_sent_wo_sw_len_'+lang,2)
-    sent_lem_len  =load_preprocessed_data('../data/preprocess_sent_lem_len_'+lang,2)
-    return txt, corpus, txt_split, df_count_word,sent_len, sent_wo_sw_len, sent_lem_len
+    return txt, corpus, txt_split, df_count_word,sent_len
     
 def plot_word_cloud(text, title, masque, stop_words, background_color = "white"):
     
@@ -231,10 +229,8 @@ def run():
     st.title(title)
 
     #Chargement des textes complet dans les 2 langues
-    full_txt_en, full_corpus_en, full_txt_split_en, full_df_count_word_en,full_sent_len_en, \
-    full_sent_wo_sw_len_en, full_sent_lem_len_en = load_all_preprocessed_data('en')
-    full_txt_fr, full_corpus_fr, full_txt_split_fr, full_df_count_word_fr,full_sent_len_fr, \
-    full_sent_wo_sw_len_fr, full_sent_lem_len_fr = load_all_preprocessed_data('fr')
+    full_txt_en, full_corpus_en, full_txt_split_en, full_df_count_word_en,full_sent_len_en = load_all_preprocessed_data('en')
+    full_txt_fr, full_corpus_fr, full_txt_split_fr, full_df_count_word_fr,full_sent_len_fr = load_all_preprocessed_data('fr')
 
     # 
     st.write("## **Données d'entrée :**\n")
