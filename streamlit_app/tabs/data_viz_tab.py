@@ -251,16 +251,12 @@ def run():
         txt_split_en = full_txt_split_en[first_line:last_line]
         df_count_word_en =full_df_count_word_en.loc[first_line:last_line-1]
         sent_len_en = full_sent_len_en[first_line:last_line]
-        sent_wo_sw_len_en = full_sent_wo_sw_len_en[first_line:last_line]
-        sent_lem_len_en = full_sent_lem_len_en[first_line:last_line]
     else:
         txt_fr = full_txt_fr[first_line:last_line]
         corpus_fr = full_corpus_fr[first_line:last_line]
         txt_split_fr = full_txt_split_fr[first_line:last_line]
         df_count_word_fr =full_df_count_word_fr.loc[first_line:last_line-1]
         sent_len_fr = full_sent_len_fr[first_line:last_line]
-        sent_wo_sw_len_fr = full_sent_wo_sw_len_fr[first_line:last_line]
-        sent_lem_len_fr = full_sent_lem_len_fr[first_line:last_line]
         
     if (Langue=='Anglais'):
         st.dataframe(pd.DataFrame(data=full_txt_en,columns=['Texte']).loc[first_line:last_line-1].head(max_lines_to_display), width=800)
