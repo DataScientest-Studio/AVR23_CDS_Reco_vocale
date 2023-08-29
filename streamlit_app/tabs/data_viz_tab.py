@@ -1,15 +1,15 @@
 import streamlit as st
 from PIL import Image
 import os
-import time
-import random
+# import time
+# import random
 import ast
 import contextlib
 import numpy as np
 import pandas as pd
-import collections
-import re
-import string
+# import collections
+# import re
+# import string
 import matplotlib.pyplot as plt
 import seaborn as sns
 from wordcloud import WordCloud
