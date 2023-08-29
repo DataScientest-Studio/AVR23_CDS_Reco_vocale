@@ -48,7 +48,6 @@ def load_data(path):
     data = data.split('\n')
     return data[first_line:min(len(data),first_line+max_lines)]
 
-@st.cache_data 
 def load_preprocessed_data(path,data_type):
     
     input_file = os.path.join(path)
@@ -79,8 +78,7 @@ def load_all_preprocessed_data(lang):
     sent_wo_sw_len=load_preprocessed_data('../data/preprocess_sent_wo_sw_len_'+lang,2)
     sent_lem_len  =load_preprocessed_data('../data/preprocess_sent_lem_len_'+lang,2)
     return txt, corpus, txt_split, df_count_word,sent_len, sent_wo_sw_len, sent_lem_len
-
-@st.cache_data(ttl='1h')      
+    
 def plot_word_cloud(text, title, masque, stop_words, background_color = "white"):
     
     mask_coloring = np.array(Image.open(str(masque)))
