@@ -292,29 +292,31 @@ def display_preprocess_results(lang, data, data_split, data_lem, data_wosw, txt_
         st.subheader("Tokenisation")
         st.write('Texte "splited":')
         st.dataframe(pd.DataFrame(data=data_split).head(max_lines_to_display), width=800)
+        st.write("**Nombre de mots uniques                : "+str(nb_mots_uniques)+"**") 
+        st.write("")
         st.write("\n**Mots uniques:**")
         st.markdown(corpus[:500])
         st.write("\n**Nombre d'apparitions de chaque mot dans chaque phrase (Bag Of Words):**")
         st.dataframe(txt_n_unique_val.head(max_lines_to_display), width=800) 
     with tab3:
         st.subheader("Lemmatisation")
-        if lemmatize_to_do:
-            st.write("**Nombre de mots uniques lemmatisés     : "+str(nb_mots_lem)+"**")
-            st.write("")  
+        if lemmatize_to_do:  
             st.dataframe(pd.DataFrame(data=data_lem,columns=['Texte lemmatisé']).head(max_lines_to_display), width=800)
             # Si langue anglaise, affichage du taggage des mots
             if lang == 'en':
                 for i in range(min(5,len(data))):
                     s = str(nltk.pos_tag(data_split[i]))
                     st.markdown("**Texte avec Tags     "+str(i)+"** : "+s)
+            st.write("**Nombre de mots uniques lemmatisés     : "+str(nb_mots_lem)+"**")
+            st.write("")
             st.write("\n**Mots uniques lemmatisés:**")
             st.markdown(mots_lem[:500])  
     with tab4:
         st.subheader("Sans Stopword")
         if stopwords_to_do:
+            st.dataframe(pd.DataFrame(data=data_wosw,columns=['Texte sans stopwords']).head(max_lines_to_display), width=800)
             st.write("**Nombre de mots uniques sans stop words: "+str(nb_mots_wo_stopword)+"**")
             st.write("")  
-            st.dataframe(pd.DataFrame(data=data_wosw,columns=['Texte sans stopwords']).head(max_lines_to_display), width=800)
             st.write("\n**Mots uniques sans stop words:**")
             st.markdown(mots_wo_sw[:500])
 
