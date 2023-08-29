@@ -29,9 +29,11 @@ with contextlib.redirect_stdout(open(os.devnull, "w")):
 first_line = 0
 # Nombre maximum de lignes à charger
 max_lines = 140000
-
 if ((first_line+max_lines)>137860):
-    first_line = max(137860-max_lines,0)
+    max_lines = max(137860-first_line ,0)
+# Nombre maximum de ligne à afficher pour les DataFrame
+max_lines_to_display = 50
+
 
 @st.cache_data 
 def load_data(path):
@@ -231,8 +233,6 @@ def run():
     st.title(title)
 
     #Chargement des textes complet dans les 2 langues
-    first_line=0
-    max_lines = 140000
     full_txt_en, full_corpus_en, full_txt_split_en, full_df_count_word_en,full_sent_len_en, \
     full_sent_wo_sw_len_en, full_sent_lem_len_en = load_all_preprocessed_data('en')
     full_txt_fr, full_corpus_fr, full_txt_split_fr, full_df_count_word_fr,full_sent_len_fr, \
@@ -269,9 +269,9 @@ def run():
         sent_lem_len_fr = full_sent_lem_len_fr[first_line:last_line]
         
     if (Langue=='Anglais'):
-        st.dataframe(pd.DataFrame(data=full_txt_en,columns=['Texte']).loc[first_line:last_line-1])
+        st.dataframe(pd.DataFrame(data=full_txt_en,columns=['Texte']).loc[first_line:last_line-1].head(max_lines_to_display), width=800)
     else:
-        st.dataframe(pd.DataFrame(data=full_txt_fr,columns=['Texte']).loc[first_line:last_line-1])
+        st.dataframe(pd.DataFrame(data=full_txt_fr,columns=['Texte']).loc[first_line:last_line-1].head(max_lines_to_display), width=800)
     st.write("")
 
     tab1, tab2, tab3, tab4, tab5 = st.tabs(["World Cloud", "Frequence","Distribution longueur", "Co-occurence", "Proximité"])

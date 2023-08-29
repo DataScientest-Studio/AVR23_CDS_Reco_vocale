@@ -1,23 +1,23 @@
 import streamlit as st
-from PIL import Image
+# from PIL import Image
 import os
-import time
-import random
+# import time
+# import random
 import ast
 import contextlib
 import numpy as np
 import pandas as pd
 import collections
 import re
-import string
-import matplotlib.pyplot as plt
-import seaborn as sns
+# import string
+# import matplotlib.pyplot as plt
+# import seaborn as sns
 import nltk
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
-import subprocess
-import sys
-import spacy_streamlit
+# import subprocess
+# import sys
+# import spacy_streamlit
 
 
 
@@ -39,7 +39,10 @@ first_line = 0
 # Nombre maximum de lignes à charger
 max_lines = 140000
 if ((first_line+max_lines)>137860):
-    first_line = max(137860-max_lines,0)
+    max_lines = max(137860-first_line ,0)
+# Nombre maximum de ligne à afficher pour les DataFrame
+max_lines_to_display = 50
+
     
 with contextlib.redirect_stdout(open(os.devnull, "w")):
     nltk.download('stopwords')
@@ -53,10 +56,37 @@ def load_data(path):
         
     # On convertit les majuscules en minulcule
     data = data.lower()
-    
     data = data.split('\n')
     return data[first_line:min(len(data),first_line+max_lines)]
 
+def load_preprocessed_data(path,data_type):
+    
+    input_file = os.path.join(path)
+    if data_type == 1:
+        return pd.read_csv(input_file, encoding="utf-8", index_col=0)
+    else:
+        with open(input_file, "r",  encoding="utf-8") as f:
+            data = f.read()
+            data = data.split('\n')
+        if data_type==0:
+            data=data[:-1]
+        elif data_type == 2:
+            data=[eval(i) for i in data[:-1]]
+        elif data_type ==3:
+            data2 = []
+            for d in data[:-1]:
+                data2.append(ast.literal_eval(d))
+            data=data2
+        return data
+
+@st.cache_data(ttl='1h') 
+def load_all_preprocessed_data(lang):
+    txt             =load_preprocessed_data('../data/preprocess_txt_'+lang,0)
+    txt_split       = load_preprocessed_data('../data/preprocess_txt_split_'+lang,3)
+    txt_lem         = load_preprocessed_data('../data/preprocess_txt_lem_'+lang,0)
+    txt_wo_stopword = load_preprocessed_data('../data/preprocess_txt_wo_stopword_'+lang,0)
+    df_count_word   = pd.concat([load_preprocessed_data('../data/preprocess_df_count_word1_'+lang,1), load_preprocessed_data('../data/preprocess_df_count_word2_'+lang,1)]) 
+    return txt, txt_split, txt_lem, txt_wo_stopword, df_count_word
     
 def remove_stopwords(text, lang): 
     stop_words = set(stopwords.words(lang))
@@ -134,16 +164,7 @@ def preprocess_txt (data, lang):
     nltk.download('punkt')
     nltk.download('averaged_perceptron_tagger')
     
-    tab1, tab2, tab3, tab4 = st.tabs(["Résumé", "Tokenisation","Lemmatisation", "Sans Stopword"])
-    with tab1:
-        st.subheader("Résumé du pré-processing")
-    with tab2:
-        st.subheader("Tokenisation")
-    with tab3:
-        st.subheader("Lemmatisation")
-    with tab4:
-        st.subheader("Sans Stopword")
-    
+  
     word_count = collections.Counter()
     word_lem_count = collections.Counter()
     word_wosw_count = collections.Counter()
@@ -184,10 +205,10 @@ def preprocess_txt (data, lang):
 
     if l!="unknown":
         # Lemmatisation en 12 lots (On ne peut lemmatiser + de 1 M de caractères à la fois)
+        data_lemmatized=""
         if lemmatize_to_do:
             n_batch = 12
             batch_size = round((nb_phrases/ n_batch)+0.5)
-            data_lemmatized=""
             for i in range(n_batch):
                 to_lem = ".".join([s for s in data[i*batch_size:(i+1)*batch_size]])
                 data_lemmatized = data_lemmatized+"."+lemmatize(to_lem,lang).lower()
@@ -215,62 +236,11 @@ def preprocess_txt (data, lang):
                 word_wosw_count.update(data_split_wo_stopwords[-1])
 
     corpus = list(word_count.keys())
-    nb_mots = sum(word_count.values())
-    nb_mots_uniques = len(corpus)
-
-
-    # Affichage du nombre de mot en fonction du pré-processing réalisé   
-    with tab1:
-        st.write("**Nombre de phrases                     : "+str(nb_phrases)+"**")
-        st.write("**Nombre de mots                        : "+str(nb_mots)+"**")
-        st.write("**Nombre de mots uniques                : "+str(nb_mots_uniques)+"**")
-    with tab3:
-        if lemmatize_to_do:
-            mots_lem = list(word_lem_count.keys())
-            nb_mots_lem = len(mots_lem)
-            st.write("**Nombre de mots uniques lemmatisés     : "+str(nb_mots_lem)+"**")
-    with tab4:
-        if stopwords_to_do:
-            mots_wo_sw = list(word_wosw_count)
-            nb_mots_wo_stopword = len(mots_wo_sw)
-            st.write("**Nombre de mots uniques sans stop words: "+str(nb_mots_wo_stopword)+"**")
-    st.write("")
-
-    # Affichage des 5 premiers txt_split
-    for i in range(min(5,len(data_split))):
-        with tab2:
-            st.markdown('**Texte "splited"     '+str(i)+'** : '+str(data_split[i]) ) 
-        with tab3:
-            if lemmatize_to_do:
-                st.markdown('**Texte lemmatisé     '+str(i)+'** : '+str(data_lem[i]))
-                if lang == 'en':
-                    st.markdown("**Texte avec Tags     "+str(i)+"** : "+str(nltk.pos_tag(data_split[i])))
-        with tab4:
-            if stopwords_to_do:
-                st.markdown('**Texte sans stopwords '+str(i)+'** : '+str(data_split_wo_stopwords[i]))
-            # Si langue anglaise, affichage du taggage des mots
-
    
-    
-    with tab2:
-        # Affichage du corpus de mots uniques    
-        st.write("\n**Mots uniques:**")
-        st.markdown(corpus[:500])
-    with tab3:
-        if lemmatize_to_do:
-            st.write("\n**Mots uniques lemmatisés:**")
-            st.markdown(mots_lem[:500])
-    with tab4:
-        if stopwords_to_do:
-            st.write("\n**Mots uniques sans stop words:**")
-            st.markdown(mots_wo_sw[:500])
-
-    
     # Création d'un DataFrame txt_n_unique_val :
     #      colonnes = mots
     #      lignes = phases
     #      valeur de la cellule = nombre d'occurence du mot dans la phrase
-
     
     ## BOW
     from sklearn.feature_extraction.text import CountVectorizer
@@ -280,19 +250,72 @@ def preprocess_txt (data, lang):
     countvectors = count_vectorizer.fit_transform(data)
     corpus = count_vectorizer.get_feature_names_out()
 
-    txt_n_unique_val=  pd.DataFrame(columns=corpus,index=range(nb_phrases), data=countvectors.todense()).astype(float)
-    with tab1:
-        st.write("\n**Nombre d'apparitions de chaque mot dans chaque phrase (Bag Of Words):**")
-        st.dataframe(txt_n_unique_val.head(50)) # .iloc[:,:40].head(10)
-    with tab2:
-        st.write("\n**Nombre d'apparitions de chaque mot dans chaque phrase (Bag Of Words):**")
-        st.dataframe(txt_n_unique_val.head(50))
+    txt_n_unique_val=  pd.DataFrame(columns=corpus,index=range(nb_phrases), data=countvectors.todense()).astype(float)     
     
-  
-    
-    
-    return data, corpus, data_split, txt_n_unique_val, sentence_length, data_length_wo_stopwords, data_lem_length  
+    return data, corpus, data_split, data_lemmatized, data_wosw, txt_n_unique_val, sentence_length, data_length_wo_stopwords, data_lem_length      
  
+
+def count_world(data):
+    word_count = collections.Counter()
+    for sentence in data:
+        word_count.update(word_tokenize(sentence))
+    corpus = list(word_count.keys())
+    nb_mots = sum(word_count.values())
+    nb_mots_uniques = len(corpus)
+    return corpus, nb_mots, nb_mots_uniques
+                          
+def display_preprocess_results(lang, data, data_split, data_lem, data_wosw, txt_n_unique_val):
+
+    global max_lines, first_line, lemmatize_to_do, stopwords_to_do
+    corpus = []
+    nb_phrases = len(data)
+    corpus, nb_mots, nb_mots_uniques = count_world(data)
+    mots_lem, _ , nb_mots_lem = count_world(data_lem)
+    mots_wo_sw, _ , nb_mots_wo_stopword = count_world(data_wosw)
+    # Identifiez les colonnes contenant uniquement des zéros et les supprimer
+    columns_with_only_zeros = txt_n_unique_val.columns[txt_n_unique_val.eq(0).all()]
+    txt_n_unique_val = txt_n_unique_val.drop(columns=columns_with_only_zeros)
+
+    # Affichage du nombre de mot en fonction du pré-processing réalisé
+    tab1, tab2, tab3, tab4 = st.tabs(["Résumé", "Tokenisation","Lemmatisation", "Sans Stopword"])
+    with tab1:
+        st.subheader("Résumé du pré-processing")
+        st.write("**Nombre de phrases                     : "+str(nb_phrases)+"**")
+        st.write("**Nombre de mots                        : "+str(nb_mots)+"**")
+        st.write("**Nombre de mots uniques                : "+str(nb_mots_uniques)+"**")  
+        st.write("") 
+        st.write("\n**Nombre d'apparitions de chaque mot dans chaque phrase (Bag Of Words):**")
+        st.dataframe(txt_n_unique_val.head(max_lines_to_display), width=800) 
+    with tab2:
+        st.subheader("Tokenisation")
+        st.write('Texte "splited":')
+        st.dataframe(pd.DataFrame(data=data_split).head(max_lines_to_display), width=800)
+        st.write("\n**Mots uniques:**")
+        st.markdown(corpus[:500])
+        st.write("\n**Nombre d'apparitions de chaque mot dans chaque phrase (Bag Of Words):**")
+        st.dataframe(txt_n_unique_val.head(max_lines_to_display), width=800) 
+    with tab3:
+        st.subheader("Lemmatisation")
+        if lemmatize_to_do:
+            st.write("**Nombre de mots uniques lemmatisés     : "+str(nb_mots_lem)+"**")
+            st.write("")  
+            st.dataframe(pd.DataFrame(data=data_lem,columns=['Texte lemmatisé']).head(max_lines_to_display), width=800)
+            # Si langue anglaise, affichage du taggage des mots
+            if lang == 'en':
+                for i in range(min(5,len(data))):
+                    s = str(nltk.pos_tag(data_split[i]))
+                    st.markdown("**Texte avec Tags     "+str(i)+"** : "+s)
+            st.write("\n**Mots uniques lemmatisés:**")
+            st.markdown(mots_lem[:500])  
+    with tab4:
+        st.subheader("Sans Stopword")
+        if stopwords_to_do:
+            st.write("**Nombre de mots uniques sans stop words: "+str(nb_mots_wo_stopword)+"**")
+            st.write("")  
+            st.dataframe(pd.DataFrame(data=data_wosw,columns=['Texte sans stopwords']).head(max_lines_to_display), width=800)
+            st.write("\n**Mots uniques sans stop words:**")
+            st.markdown(mots_wo_sw[:500])
+
 
 def run():
     global max_lines, first_line, lemmatize_to_do, stopwords_to_do
@@ -300,10 +323,12 @@ def run():
     st.title(title)
     
     #Chargement des textes complet dans les 2 langues
-    first_line=0
-    max_lines = 140000
     full_txt_en = load_data('../data/small_vocab_en')
     full_txt_fr = load_data('../data/small_vocab_fr')
+
+    # Chargement du résultat du préprocessing
+    full_txt_en, full_txt_split_en, full_txt_lem_en, full_txt_wo_stopword_en, full_df_count_word_en = load_all_preprocessed_data('en')
+    full_txt_fr, full_txt_split_fr, full_txt_lem_fr, full_txt_wo_stopword_fr, full_df_count_word_fr = load_all_preprocessed_data('fr')
     # 
     st.write("## **Données d'entrée :**\n")
     Langue = st.radio('Langue:',('Anglais','Français'), horizontal=True)
@@ -314,36 +339,45 @@ def run():
         max_lines=137860
     if ((first_line+max_lines)>137860):
         max_lines = max(137860-first_line,0)
-    if ((max_lines-first_line)>1000): 
-        lemmatize_to_do = False
-    else:
-        lemmatize_to_do = True
+    # if ((max_lines-first_line)>1000): 
+    #     lemmatize_to_do = True
+    # else:
+    #     lemmatize_to_do = False
         
     last_line = first_line+max_lines
     if (Langue=='Anglais'):
-        st.write(pd.DataFrame(data=full_txt_en,columns=['Texte']).loc[first_line:last_line-1])
+        st.dataframe(pd.DataFrame(data=full_txt_en,columns=['Texte']).loc[first_line:last_line-1].head(max_lines_to_display), width=800)
     else:
-        st.dataframe(pd.DataFrame(data=full_txt_fr,columns=['Texte']).loc[first_line:last_line-1])
+        st.dataframe(pd.DataFrame(data=full_txt_fr,columns=['Texte']).loc[first_line:last_line-1].head(max_lines_to_display), width=800)
     st.write("")
 
-    #Chargement des textes sélectionnés dans les 2 langues (max lignes = max_lines)
-    txt_en = full_txt_en[first_line:first_line+max_lines]
-    txt_fr = full_txt_fr[first_line:first_line+max_lines]   
+    # Chargement des textes sélectionnés dans les 2 langues (max lignes = max_lines)
+    txt_en = full_txt_en[first_line:last_line]
+    txt_fr = full_txt_fr[first_line:last_line]   
     # Elimination des phrases non traduites
     txt_en, txt_fr = clean_untranslated_sentence(txt_en, txt_fr)
-    
+    # Chargement du résultat du préprocessing (max lignes = max_lines)
+    txt_en = full_txt_en[first_line:last_line]
+    txt_split_en = full_txt_split_en[first_line:last_line]
+    txt_lem_en = full_txt_lem_en[first_line:last_line]
+    txt_wo_stopword_en = full_txt_wo_stopword_en[first_line:last_line]
+    df_count_word_en = full_df_count_word_en.loc[first_line:last_line-1]
+    txt_fr = full_txt_fr[first_line:last_line]
+    txt_split_fr = full_txt_split_fr[first_line:last_line]
+    txt_lem_fr = full_txt_lem_fr[first_line:last_line]
+    txt_wo_stopword_fr = full_txt_wo_stopword_fr[first_line:last_line]
+    df_count_word_fr = full_df_count_word_fr.loc[first_line:last_line-1]
+
     # Lancement du préprocessing du texte qui va spliter nettoyer les phrases et les spliter en mots 
     # et calculer nombre d'occurences des mots dans chaque phrase
     if (Langue == 'Anglais'):
         st.write("## **Préprocessing de small_vocab_en :**\n")
-        txt_en, corpus_en, txt_split_en, df_count_word_en,sent_len_en, sent_wo_sw_len_en, sent_lem_len_en  = preprocess_txt (txt_en,'en')
+        # txt_en, corpus_en, txt_split_en, txt_lem_en, txt_wo_stopword_en, df_count_word_en,sent_len_en, sent_wo_sw_len_en, sent_lem_len_en  = preprocess_txt (txt_en,'en')
+        display_preprocess_results('en',txt_en, txt_split_en, txt_lem_en, txt_wo_stopword_en, df_count_word_en)
     else:
         st.write("## **Préprocessing de small_vocab_fr :**\n")
-        txt_fr, corpus_fr, txt_split_fr, df_count_word_fr,sent_len_fr, sent_wo_sw_len_fr, sent_lem_len_fr  = preprocess_txt (txt_fr,'fr')
-
-
-
-
+        # txt_fr, corpus_fr, txt_split_fr, txt_lem_fr, txt_wo_stopword_fr, df_count_word_fr,sent_len_fr, sent_wo_sw_len_fr, sent_lem_len_fr  = preprocess_txt (txt_fr,'fr')
+        display_preprocess_results('fr', txt_fr, txt_split_fr, txt_lem_fr, txt_wo_stopword_fr, df_count_word_fr)
 
 
 
