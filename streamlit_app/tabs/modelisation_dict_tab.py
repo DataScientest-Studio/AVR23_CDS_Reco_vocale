@@ -17,6 +17,7 @@ def load_corpus(path):
 
 df_data_en = load_corpus('../data/preprocess_txt_en')
 df_data_fr = load_corpus('../data/preprocess_txt_fr')
+n1 = 0
 
 def calcul_dic(Lang,Algo,Metrique):
 
@@ -30,7 +31,7 @@ def display_translation(n1,dict, Lang):
     global df_data_src, df_data_tgt
 
     for i in range(n1,n1+5):
-        s = df_data_src.iloc[i]['Phrase']
+        s = df_data_src.iloc[i][0]
         source = Lang[:2]
         target = Lang[-2:]
         st.write("**"+source+"   :**  "+ s)
@@ -39,12 +40,12 @@ def display_translation(n1,dict, Lang):
         st.write("")
 
 def display_dic(df_dic):
-    st.dataframe(df_dic.T, height=800)
+    st.dataframe(df_dic.T, height=600)
 
 
 
 def run():
-    global df_data_src, df_data_tgt
+    global df_data_src, df_data_tgt, n1
 
     st.title(title)
     st.write("## **Données d'entrée :**\n")
@@ -61,12 +62,12 @@ def run():
     else:
         df_data_src = df_data_fr
         df_data_tgt = df_data_en
-    df_data_src.columns = ['Phrase']
-
-    sentence1 = st.selectbox("Première des 5 phrase à traduire avec le dictionnaire sélectionné", df_data_src.iloc[:-4])
-    n1 = df_data_src[df_data_src['Phrase']==sentence1].index.values[0]
+    # df_data_src.columns = ['Phrase']
+    sentence1 = st.selectbox("Selectionnez la 1ere des 5 phrase à traduire avec le dictionnaire sélectionné", df_data_src.iloc[:-4],index=int(n1) )
+    n1 = df_data_src[df_data_src[0]==sentence1].index.values[0]
+    st.write("## **Dictionnaire calculé et traduction mot à mot :**\n")
     df_dic = calcul_dic(Lang,Algo,Metrique)
-    col1, col2 = st.columns([0.3, 0.7])
+    col1, col2 = st.columns([0.25, 0.75])
     with col1:
         display_dic(df_dic)
     with col2:
