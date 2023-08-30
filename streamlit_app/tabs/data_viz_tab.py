@@ -35,7 +35,6 @@ if ((first_line+max_lines)>137860):
 max_lines_to_display = 50
 
 
-@st.cache_data 
 def load_data(path):
     
     input_file = os.path.join(path)
