@@ -4,7 +4,7 @@ import numpy as np
 import os
 from sklearn.cluster import KMeans
 from sklearn.neighbors import KNeighborsClassifier
-
+from sklearn.ensemble import RandomForestClassifier
 
 title = "Traduction mot à mot"
 sidebar_name = "Traduction mot à mot"
@@ -92,6 +92,27 @@ def calc_knn(l_src,l_tgt, metric):
     # display(knn_dict_EN_FR)
     return df_dic
 
+def calc_rf(l_src,l_tgt):
+
+    # Algorithme de Random Forest
+    X_train = df_count_word_tgt.T
+    y_train = range(nb_mots_tgt)
+
+    # Création du classifieur et construction du modèle sur les données d'entraînement
+    rf = RandomForestClassifier(n_jobs=-1, random_state=321)
+    rf.fit(X_train, y_train)
+
+    # Création et affichage du dictionnaire
+    df_dic = pd.DataFrame(data=df_count_word_tgt.columns[rf.predict(df_count_word_src.T)],index=df_count_word_src.T.index,columns=[l_tgt])
+    df_dic.index.name= l_src
+    df_dic = df_dic.T
+
+    # print("Dictionnaire Anglais -> Français:")
+    # translation_quality['Précision du dictionnaire'].loc['RF EN->FR'] = round(accuracy(dict_EN_FR_ref,rf_dict_EN_FR)*100, 2)
+    # print(f"Précision du dictionnaire = {translation_quality['Précision du dictionnaire'].loc['RF EN->FR']}%")
+    # display(rf_dict_EN_FR)
+    return df_dic
+
 def calcul_dic(Lang,Algo,Metrique):
 
     if Lang[:2]=='en': 
@@ -107,6 +128,8 @@ def calcul_dic(Lang,Algo,Metrique):
          df_dic = calc_kmeans(l_src,l_tgt)
     elif Algo=='KNN':
         df_dic = calc_knn(l_src,l_tgt, Metrique)
+    elif Algo=='Random Forest':
+         df_dic = calc_rf(l_src,l_tgt)
     else:
         df_dic = pd.read_csv('../data/dict_ref_'+Lang+'.csv',header=0,index_col=0, encoding ="utf-8", sep=';',keep_default_na=False).T.sort_index(axis=1)
     return df_dic
