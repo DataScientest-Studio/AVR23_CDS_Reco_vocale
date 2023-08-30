@@ -339,7 +339,7 @@ def run():
     Langue = st.radio('Langue:',('Anglais','Français'), horizontal=True)
     first_line = st.slider('No de la premiere ligne à analyser'':',0,137859)
     max_lines = st.select_slider('Nombre de lignes à analyser (Attention, si Max pas de lemmatisation)'':',
-                              options=[1,5,10,15,100, 1000,'Max'])
+                              options=[1,5,10,15,100, 500, 1000,'Max'])
     if max_lines=='Max':
         max_lines=137860
     if ((first_line+max_lines)>137860):
