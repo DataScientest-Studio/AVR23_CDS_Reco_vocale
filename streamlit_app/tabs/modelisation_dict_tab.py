@@ -24,14 +24,6 @@ def load_BOW(path, l):
     df_count_word  = pd.concat([df1, df2]) 
     return df_count_word
 
-df_data_en = load_corpus('../data/preprocess_txt_en')
-df_data_fr = load_corpus('../data/preprocess_txt_fr')
-df_count_word_en = load_BOW('../data/preprocess_df_count_word', 'en')
-df_count_word_fr = load_BOW('../data/preprocess_df_count_word', 'fr')
-n1 = 0
-
-nb_mots_en = 199 # len(corpus_en)
-nb_mots_fr = 330 # len(corpus_fr)
 
 '''
 # On modifie df_count_word en indiquant la présence d'un mot par 1 (au lieu du nombre d'occurences)
@@ -136,6 +128,15 @@ def run():
     global df_data_src, df_data_tgt, df_count_word_src, df_count_word_tgt, nb_mots_src, nb_mots_tgt, n1
     global df_data_en, df_data_fr, nb_mots_en, df_count_word_en, df_count_word_fr, nb_mots_en, nb_mots_fr
 
+    df_data_en = load_corpus('../data/preprocess_txt_en')
+    df_data_fr = load_corpus('../data/preprocess_txt_fr')
+    df_count_word_en = load_BOW('../data/preprocess_df_count_word', 'en')
+    df_count_word_fr = load_BOW('../data/preprocess_df_count_word', 'fr')
+    n1 = 0
+
+    nb_mots_en = 199 # len(corpus_en)
+    nb_mots_fr = 330 # len(corpus_fr)
+    
     st.title(title)
     st.write("## **Données d'entrée :**\n")
     Sens = st.radio('Sens :',('Anglais -> Français','Français -> Anglais'), horizontal=True)
