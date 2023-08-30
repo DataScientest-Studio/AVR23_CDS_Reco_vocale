@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import os
 from sklearn.cluster import KMeans
-from sklearn.neighbors import KNeighborsClassifier
+# from sklearn.neighbors import KNeighborsClassifier
 
 
 title = "Traduction mot à mot"
