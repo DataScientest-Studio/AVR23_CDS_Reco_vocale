@@ -2,8 +2,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import os
-# from sklearn.cluster import KMeans
-# from sklearn.neighbors import KNeighborsClassifier
+from sklearn.cluster import KMeans
+from sklearn.neighbors import KNeighborsClassifier
 
 
 title = "Traduction mot à mot"
@@ -24,8 +24,15 @@ def load_BOW(path, l):
     df_count_word  = pd.concat([df1, df2]) 
     return df_count_word
 
+df_data_en = load_corpus('../data/preprocess_txt_en')
+df_data_fr = load_corpus('../data/preprocess_txt_fr')
+df_count_word_en = load_BOW('../data/preprocess_df_count_word', 'en')
+df_count_word_fr = load_BOW('../data/preprocess_df_count_word', 'fr')
+n1 = 0
 
-'''
+nb_mots_en = 199 # len(corpus_en)
+nb_mots_fr = 330 # len(corpus_fr)
+
 # On modifie df_count_word en indiquant la présence d'un mot par 1 (au lieu du nombre d'occurences)
 df_count_word_en = df_count_word_en[df_count_word_en==0].fillna(1)
 df_count_word_fr = df_count_word_fr[df_count_word_fr==0].fillna(1)
@@ -34,9 +41,9 @@ df_count_word_fr = df_count_word_fr[df_count_word_fr==0].fillna(1)
 if ('new' in df_count_word_en.columns):
     df_count_word_en['new']=df_count_word_en['new']*2
     df_count_word_fr['new']=df_count_word_fr['new']*2
-'''
+
 # ============
-'''
+
 def calc_kmeans(l_src,l_tgt):
     global df_count_word_src, df_count_word_tgt, nb_mots_src, nb_mots_tgt
 
@@ -71,19 +78,19 @@ def calc_knn(l_src,l_tgt, metric):
     y_train = range(nb_mots_tgt)
 
     # Création du classifieur et construction du modèle sur les données d'entraînement
-    # knn = KNeighborsClassifier(n_neighbors=1, metric=knn_metric)
-    # knn.fit(X_train, y_train)
+    knn = KNeighborsClassifier(n_neighbors=1, metric=knn_metric)
+    knn.fit(X_train, y_train)
 
     # Création et affichage du dictionnaire
-    # df_dic = pd.DataFrame(data=df_count_word_tgt.columns[knn.predict(df_count_word_en.T)],index=df_count_word_en.T.index,columns=[l_tgt])
-    # df_dic.index.name = l_src
-    # df_dic = df_dic.T
+    df_dic = pd.DataFrame(data=df_count_word_tgt.columns[knn.predict(df_count_word_en.T)],index=df_count_word_en.T.index,columns=[l_tgt])
+    df_dic.index.name = l_src
+    df_dic = df_dic.T
 
     # print("Dictionnaire Anglais -> Français:")
     # translation_quality['Précision du dictionnaire'].loc['KNN EN->FR'] =round(accuracy(dict_EN_FR_ref,knn_dict_EN_FR)*100, 2)
     # print(f"Précision du dictionnaire = {translation_quality['Précision du dictionnaire'].loc['KNN EN->FR']}%")
     # display(knn_dict_EN_FR)
-    return # df_dic
+    return df_dic
 
 def calcul_dic(Lang,Algo,Metrique):
 
@@ -96,10 +103,10 @@ def calcul_dic(Lang,Algo,Metrique):
 
     if Algo=='Manuel':
         df_dic = pd.read_csv('../data/dict_ref_'+Lang+'.csv',header=0,index_col=0, encoding ="utf-8", sep=';',keep_default_na=False).T.sort_index(axis=1)
-    # elif Algo=='KMeans':
-    #     df_dic = calc_kmeans(l_src,l_tgt)
-    # elif Algo=='KNN':
-    #     df_dic = calc_knn(l_src,l_tgt, Metrique)
+    elif Algo=='KMeans':
+         df_dic = calc_kmeans(l_src,l_tgt)
+    elif Algo=='KNN':
+        df_dic = calc_knn(l_src,l_tgt, Metrique)
     else:
         df_dic = pd.read_csv('../data/dict_ref_'+Lang+'.csv',header=0,index_col=0, encoding ="utf-8", sep=';',keep_default_na=False).T.sort_index(axis=1)
     return df_dic
@@ -121,22 +128,12 @@ def display_translation(n1,dict, Lang):
 
 def display_dic(df_dic):
     st.dataframe(df_dic.T, height=600)
-'''
 
 
 def run():
     global df_data_src, df_data_tgt, df_count_word_src, df_count_word_tgt, nb_mots_src, nb_mots_tgt, n1
     global df_data_en, df_data_fr, nb_mots_en, df_count_word_en, df_count_word_fr, nb_mots_en, nb_mots_fr
 
-    df_data_en = load_corpus('../data/preprocess_txt_en')
-    df_data_fr = load_corpus('../data/preprocess_txt_fr')
-    df_count_word_en = load_BOW('../data/preprocess_df_count_word', 'en')
-    df_count_word_fr = load_BOW('../data/preprocess_df_count_word', 'fr')
-    n1 = 0
-
-    nb_mots_en = 199 # len(corpus_en)
-    nb_mots_fr = 330 # len(corpus_fr)
-    
     st.title(title)
     st.write("## **Données d'entrée :**\n")
     Sens = st.radio('Sens :',('Anglais -> Français','Français -> Anglais'), horizontal=True)
@@ -145,7 +142,7 @@ def run():
     Metrique = ''
     if (Algo == 'KNN'):
         Metrique = st.radio('Metrique:',('minkowski', 'cosine', 'chebyshev', 'manhattan', 'euclidean'), horizontal=True)
-    '''
+
     if (Lang=='en_fr'):
         df_data_src = df_data_en
         df_data_tgt = df_data_fr
@@ -160,16 +157,16 @@ def run():
         df_count_word_tgt = df_count_word_en
         nb_mots_src = nb_mots_fr
         nb_mots_tgt = nb_mots_en
-    '''
+
     # df_data_src.columns = ['Phrase']
-    # sentence1 = st.selectbox("Selectionnez la 1ere des 5 phrase à traduire avec le dictionnaire sélectionné", df_data_src.iloc[:-4],index=int(n1) )
-    # n1 = df_data_src[df_data_src[0]==sentence1].index.values[0]
+    sentence1 = st.selectbox("Selectionnez la 1ere des 5 phrase à traduire avec le dictionnaire sélectionné", df_data_src.iloc[:-4],index=int(n1) )
+    n1 = df_data_src[df_data_src[0]==sentence1].index.values[0]
     st.write("## **Dictionnaire calculé et traduction mot à mot :**\n")
-    # df_dic = calcul_dic(Lang,Algo,Metrique)
+    df_dic = calcul_dic(Lang,Algo,Metrique)
     col1, col2 = st.columns([0.25, 0.75])
     with col1:
         st.write("#### **Dictionnaire**")
-        # display_dic(df_dic)
+        display_dic(df_dic)
     with col2:
         st.write("#### **Traduction**")
-        # display_translation(n1, df_dic, Lang)   
+        display_translation(n1, df_dic, Lang)   
