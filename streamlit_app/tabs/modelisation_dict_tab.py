@@ -77,19 +77,19 @@ def calc_knn(l_src,l_tgt, metric):
     y_train = range(nb_mots_tgt)
 
     # Création du classifieur et construction du modèle sur les données d'entraînement
-    knn = KNeighborsClassifier(n_neighbors=1, metric=knn_metric)
-    knn.fit(X_train, y_train)
+    # knn = KNeighborsClassifier(n_neighbors=1, metric=knn_metric)
+    # knn.fit(X_train, y_train)
 
     # Création et affichage du dictionnaire
-    df_dic = pd.DataFrame(data=df_count_word_tgt.columns[knn.predict(df_count_word_en.T)],index=df_count_word_en.T.index,columns=[l_tgt])
-    df_dic.index.name = l_src
-    df_dic = df_dic.T
+    # df_dic = pd.DataFrame(data=df_count_word_tgt.columns[knn.predict(df_count_word_en.T)],index=df_count_word_en.T.index,columns=[l_tgt])
+    # df_dic.index.name = l_src
+    # df_dic = df_dic.T
 
     # print("Dictionnaire Anglais -> Français:")
     # translation_quality['Précision du dictionnaire'].loc['KNN EN->FR'] =round(accuracy(dict_EN_FR_ref,knn_dict_EN_FR)*100, 2)
     # print(f"Précision du dictionnaire = {translation_quality['Précision du dictionnaire'].loc['KNN EN->FR']}%")
     # display(knn_dict_EN_FR)
-    return df_dic
+    return # df_dic
 
 def calcul_dic(Lang,Algo,Metrique):
 
