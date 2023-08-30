@@ -143,7 +143,7 @@ def run():
     Metrique = ''
     if (Algo == 'KNN'):
         Metrique = st.radio('Metrique:',('minkowski', 'cosine', 'chebyshev', 'manhattan', 'euclidean'), horizontal=True)
-'''
+    '''
     if (Lang=='en_fr'):
         df_data_src = df_data_en
         df_data_tgt = df_data_fr
@@ -158,7 +158,7 @@ def run():
         df_count_word_tgt = df_count_word_en
         nb_mots_src = nb_mots_fr
         nb_mots_tgt = nb_mots_en
-'''
+    '''
     # df_data_src.columns = ['Phrase']
     # sentence1 = st.selectbox("Selectionnez la 1ere des 5 phrase à traduire avec le dictionnaire sélectionné", df_data_src.iloc[:-4],index=int(n1) )
     # n1 = df_data_src[df_data_src[0]==sentence1].index.values[0]
