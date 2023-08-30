@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import os
 from sklearn.cluster import KMeans
-from sklearn_extra.cluster import KMedoids
+from sklearn.neighbors import KNeighborsClassifier
 
 
 title = "Traduction mot à mot"
@@ -66,6 +66,31 @@ def calc_kmeans(l_src,l_tgt):
     # display(dict_EN_FR)
     return df_dic
 
+def calc_knn(l_src,l_tgt, metric):
+    global df_count_word_src, df_count_word_tgt, nb_mots_src, nb_mots_tgt
+
+    #Définition de la metrique (pour les 2 dictionnaires
+    knn_metric = metric   # minkowski, cosine, chebyshev, manhattan, euclidean
+
+    # Algorithme de KNN
+    X_train = df_count_word_tgt.T
+    y_train = range(nb_mots_tgt)
+
+    # Création du classifieur et construction du modèle sur les données d'entraînement
+    knn = KNeighborsClassifier(n_neighbors=1, metric=knn_metric)
+    knn.fit(X_train, y_train)
+
+    # Création et affichage du dictionnaire
+    df_dic = pd.DataFrame(data=df_count_word_tgt.columns[knn.predict(df_count_word_en.T)],index=df_count_word_en.T.index,columns=[l_tgt])
+    df_dic.index.name = l_src
+    df_dic = df_dic.T
+
+    # print("Dictionnaire Anglais -> Français:")
+    # translation_quality['Précision du dictionnaire'].loc['KNN EN->FR'] =round(accuracy(dict_EN_FR_ref,knn_dict_EN_FR)*100, 2)
+    # print(f"Précision du dictionnaire = {translation_quality['Précision du dictionnaire'].loc['KNN EN->FR']}%")
+    # display(knn_dict_EN_FR)
+    return df_dic
+
 def calcul_dic(Lang,Algo,Metrique):
 
     if Lang[:2]=='en': 
@@ -79,6 +104,8 @@ def calcul_dic(Lang,Algo,Metrique):
         df_dic = pd.read_csv('../data/dict_ref_'+Lang+'.csv',header=0,index_col=0, encoding ="utf-8", sep=';',keep_default_na=False).T.sort_index(axis=1)
     elif Algo=='KMeans':
         df_dic = calc_kmeans(l_src,l_tgt)
+    elif Algo=='KNN':
+        df_dic = calc_knn(l_src,l_tgt, Metrique)
     else:
         df_dic = pd.read_csv('../data/dict_ref_'+Lang+'.csv',header=0,index_col=0, encoding ="utf-8", sep=';',keep_default_na=False).T.sort_index(axis=1)
     return df_dic
