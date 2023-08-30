@@ -119,11 +119,9 @@ def display_translation(n1,dict, Lang):
         s = df_data_src.iloc[i][0]
         source = Lang[:2]
         target = Lang[-2:]
-        for col in s.split():
-            st.write('col: '+col)
-            st.write('dict[col]! '+dict[col])
-        # st.write(s.split())
-        # st.write(dict)
+        # for col in s.split():
+        #     st.write('col: '+col)
+        #     st.write('dict[col]! '+dict[col])
         st.write("**"+source+"   :**  "+ s)
         st.write("**"+target+"   :**  "+(' '.join(dict[col].iloc[0] for col in s.split())))
         st.write("**ref. :** "+df_data_tgt.iloc[i][0])
