@@ -104,8 +104,8 @@ def calcul_dic(Lang,Algo,Metrique):
         df_dic = pd.read_csv('../data/dict_ref_'+Lang+'.csv',header=0,index_col=0, encoding ="utf-8", sep=';',keep_default_na=False).T.sort_index(axis=1)
     elif Algo=='KMeans':
         df_dic = calc_kmeans(l_src,l_tgt)
-    elif Algo=='KNN':
-        df_dic = calc_knn(l_src,l_tgt, Metrique)
+    # elif Algo=='KNN':
+    #     df_dic = calc_knn(l_src,l_tgt, Metrique)
     else:
         df_dic = pd.read_csv('../data/dict_ref_'+Lang+'.csv',header=0,index_col=0, encoding ="utf-8", sep=';',keep_default_na=False).T.sort_index(axis=1)
     return df_dic
