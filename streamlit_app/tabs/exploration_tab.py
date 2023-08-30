@@ -49,7 +49,6 @@ max_lines_to_display = 50
 with contextlib.redirect_stdout(open(os.devnull, "w")):
     nltk.download('stopwords')
 
-@st.cache_data(persist=True)
 def load_data(path):
     
     input_file = os.path.join(path)
@@ -81,7 +80,6 @@ def load_preprocessed_data(path,data_type):
             data=data2
         return data
 
-@st.cache_data(persist=True)
 def load_all_preprocessed_data(lang):
     txt             =load_preprocessed_data('../data/preprocess_txt_'+lang,0)
     txt_split       = load_preprocessed_data('../data/preprocess_txt_split_'+lang,3)
@@ -89,7 +87,15 @@ def load_all_preprocessed_data(lang):
     txt_wo_stopword = load_preprocessed_data('../data/preprocess_txt_wo_stopword_'+lang,0)
     df_count_word   = pd.concat([load_preprocessed_data('../data/preprocess_df_count_word1_'+lang,1), load_preprocessed_data('../data/preprocess_df_count_word2_'+lang,1)]) 
     return txt, txt_split, txt_lem, txt_wo_stopword, df_count_word
-    
+
+#Chargement des textes complet dans les 2 langues
+full_txt_en = load_data('../data/small_vocab_en')
+full_txt_fr = load_data('../data/small_vocab_fr')
+
+# Chargement du résultat du préprocessing
+full_txt_en, full_txt_split_en, full_txt_lem_en, full_txt_wo_stopword_en, full_df_count_word_en = load_all_preprocessed_data('en')
+full_txt_fr, full_txt_split_fr, full_txt_lem_fr, full_txt_wo_stopword_fr, full_df_count_word_fr = load_all_preprocessed_data('fr')
+
 def remove_stopwords(text, lang): 
     stop_words = set(stopwords.words(lang))
     # stop_words will contain  set all english stopwords
@@ -326,13 +332,6 @@ def run():
     
     st.title(title)
     
-    #Chargement des textes complet dans les 2 langues
-    full_txt_en = load_data('../data/small_vocab_en')
-    full_txt_fr = load_data('../data/small_vocab_fr')
-
-    # Chargement du résultat du préprocessing
-    full_txt_en, full_txt_split_en, full_txt_lem_en, full_txt_wo_stopword_en, full_df_count_word_en = load_all_preprocessed_data('en')
-    full_txt_fr, full_txt_split_fr, full_txt_lem_fr, full_txt_wo_stopword_fr, full_df_count_word_fr = load_all_preprocessed_data('fr')
     # 
     st.write("## **Données d'entrée :**\n")
     Langue = st.radio('Langue:',('Anglais','Français'), horizontal=True)
