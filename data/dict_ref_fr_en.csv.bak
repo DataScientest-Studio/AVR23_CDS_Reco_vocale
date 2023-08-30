@@ -70,6 +70,7 @@ chat;cat
 animal;animal
 plus;most
 n;not
+aime;dislikes
 pamplemousse;grapefruit
 citrons;lemons
 verts;green
@@ -84,6 +85,7 @@ merveilleux;wonderful
 doux;mild
 tranquille;quiet
 à;in
+automne;autumn
 été;summer
 france;france
 mois;
@@ -130,6 +132,7 @@ rouillée;rusty
 fraises;strawberries
 cours;during
 j;i
+aime;like
 fraise;strawberry
 bananes;bananas
 va;going
@@ -218,10 +221,12 @@ prévoient;plan
 mouillée;wet
 lui;her
 détendre;relaxing
+automobile;automobile
 pourraient;might
 aller;go
 mes;my
 sèche;dry
+oiseau;bird
 pluie;rainy
 requins;sharks
 noir;black
@@ -239,6 +244,7 @@ plaît;dislike
 proches;loved
 brillante;shiny
 lapin;rabbit
+ours;bear
 chinois;chinese
 quand;when
 tour;tower
@@ -252,6 +258,7 @@ terrain;field
 football;football
 du;the
 veut;wants
+éléphant;elephant
 gelé;freezing
 bien;nice
 enneigé;snowy

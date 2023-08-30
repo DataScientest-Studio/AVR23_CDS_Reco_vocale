@@ -15,6 +15,8 @@ def load_corpus(path):
         data=data[:-1]
     return pd.DataFrame(data)
 
+df_data_en = load_corpus('../data/preprocess_txt_en')
+df_data_fr = load_corpus('../data/preprocess_txt_fr')
 
 def calcul_dic(Lang,Algo,Metrique):
 
@@ -24,20 +26,25 @@ def calcul_dic(Lang,Algo,Metrique):
         df_dic = pd.read_csv('../data/dict_ref_'+Lang+'.csv',header=0,index_col=0, encoding ="utf-8", sep=';',keep_default_na=False).T.sort_index()
     return df_dic
 
-def display_dic(df_dic, type, target_lang):
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        st.dataframe(df_dic.T.iloc[:84], height=1500)
-    with col2:
-        st.dataframe(df_dic.T.iloc[85:169], height=1500)
-    with col3:
-        st.dataframe(df_dic.T.iloc[170:254], height=1500)
-    with col4:
-        if len(df_dic.T)>254:
-             st.dataframe(df_dic.T.iloc[255:], height=1500)
-        else: st.write('')
+def display_translation(n1,dict, Lang):
+    global df_data_src, df_data_tgt
+
+    for i in range(n1,n1+5):
+        s = df_data_src.iloc[i]['Phrase']
+        source = Lang[:2]
+        target = Lang[-2:]
+        st.write("**"+source+"   :**  "+ s)
+        st.write("**"+target+"   :**  "+(' '.join(dict[col].iloc[0] for col in s.split())))
+        st.write("**ref. :** "+df_data_tgt.iloc[i][0])
+        st.write("")
+
+def display_dic(df_dic):
+    st.dataframe(df_dic.T, height=800)
+
+
 
 def run():
+    global df_data_src, df_data_tgt
 
     st.title(title)
     st.write("## **Données d'entrée :**\n")
@@ -49,14 +56,19 @@ def run():
         Metrique = st.radio('Metrique:',('minkowski', 'cosine', 'chebyshev', 'manhattan', 'euclidean'), horizontal=True)
 
     if (Lang=='en_fr'):
-        df_data = load_corpus('../data/preprocess_txt_en').iloc[:-4]
+        df_data_src = df_data_en
+        df_data_tgt = df_data_fr
     else:
-        df_data = load_corpus('../data/preprocess_txt_fr').iloc[:-4]
-    df_data.columns = ['Phrase']
+        df_data_src = df_data_fr
+        df_data_tgt = df_data_en
+    df_data_src.columns = ['Phrase']
 
-    sentence1 = st.selectbox("1ere phrase à traduire avec le dictionnaire sélectionné", df_data)
-    st.write(sentence1)
-    n1 = df_data[df_data['Phrase']==sentence1].index.values
+    sentence1 = st.selectbox("Première des 5 phrase à traduire avec le dictionnaire sélectionné", df_data_src.iloc[:-4])
+    n1 = df_data_src[df_data_src['Phrase']==sentence1].index.values[0]
     df_dic = calcul_dic(Lang,Algo,Metrique)
-    st.write("No phrase:"+str(n1[0]))
-    display_dic(df_dic,'ref',Lang)
+    col1, col2 = st.columns([0.3, 0.7])
+    with col1:
+        display_dic(df_dic)
+    with col2:
+        display_translation(n1, df_dic, Lang)   
+
