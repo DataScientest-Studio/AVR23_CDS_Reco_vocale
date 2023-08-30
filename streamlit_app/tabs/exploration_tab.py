@@ -60,6 +60,7 @@ def load_data(path):
     data = data.split('\n')
     return data[first_line:min(len(data),first_line+max_lines)]
 
+@st.cache_data(ttl='1h00s')
 def load_preprocessed_data(path,data_type):
     
     input_file = os.path.join(path)
@@ -80,6 +81,7 @@ def load_preprocessed_data(path,data_type):
             data=data2
         return data
 
+@st.cache_data(ttl='1h00s')
 def load_all_preprocessed_data(lang):
     txt             =load_preprocessed_data('../data/preprocess_txt_'+lang,0)
     txt_split       = load_preprocessed_data('../data/preprocess_txt_split_'+lang,3)

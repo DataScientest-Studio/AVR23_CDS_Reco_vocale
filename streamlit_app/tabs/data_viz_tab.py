@@ -34,7 +34,7 @@ if ((first_line+max_lines)>137860):
 # Nombre maximum de ligne à afficher pour les DataFrame
 max_lines_to_display = 50
 
-
+@st.cache_data(ttl='1h00s')
 def load_data(path):
     
     input_file = os.path.join(path)
@@ -47,6 +47,7 @@ def load_data(path):
     data = data.split('\n')
     return data[first_line:min(len(data),first_line+max_lines)]
 
+@st.cache_data(ttl='1h00s')
 def load_preprocessed_data(path,data_type):
     
     input_file = os.path.join(path)
@@ -67,7 +68,7 @@ def load_preprocessed_data(path,data_type):
             data=data2
         return data
     
-
+@st.cache_data(ttl='1h00s')
 def load_all_preprocessed_data(lang):
     txt           =load_preprocessed_data('../data/preprocess_txt_'+lang,0)
     corpus        =load_preprocessed_data('../data/preprocess_corpus_'+lang,0)

@@ -1,23 +1,24 @@
+import streamlit as st
 import os.path
 from collections import OrderedDict
-import streamlit as st
+# Define TITLE, TEAM_MEMBERS and PROMOTION values, in config.py.
+import config
+
+st.set_page_config(
+    page_title=config.TITLE,
+    page_icon= "assets/faviconV2.png"
+)
 
 # Define the root folders depending on local/cloud run
 thisfile = os.path.abspath(__file__)
 if ('/' in thisfile): 
     os.chdir(os.path.dirname(thisfile))
 
-# Define TITLE, TEAM_MEMBERS and PROMOTION values, in config.py.
-import config
+
 
 # Tabs in the ./tabs folder, imported here.
 from tabs import intro, exploration_tab, data_viz_tab, modelisation_dict_tab, modelisation_seq2seq_tab
 
-
-st.set_page_config(
-    page_title=config.TITLE,
-    page_icon= "assets/faviconV2.png"
-)
 
 with open("style.css", "r") as f:
     style = f.read()

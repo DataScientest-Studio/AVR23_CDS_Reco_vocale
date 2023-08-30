@@ -9,6 +9,7 @@ from sklearn.ensemble import RandomForestClassifier
 title = "Traduction mot à mot"
 sidebar_name = "Traduction mot à mot"
 
+@st.cache_data(ttl='1h00s')
 def load_corpus(path):
     input_file = os.path.join(path)
     with open(input_file, "r",  encoding="utf-8") as f:
@@ -17,6 +18,7 @@ def load_corpus(path):
         data=data[:-1]
     return pd.DataFrame(data)
 
+@st.cache_data(ttl='1h00s')
 def load_BOW(path, l):
     input_file = os.path.join(path)
     df1 = pd.read_csv(input_file+'1_'+l, encoding="utf-8", index_col=0)
