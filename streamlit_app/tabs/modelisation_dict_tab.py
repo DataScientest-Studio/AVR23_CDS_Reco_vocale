@@ -22,7 +22,7 @@ def load_BOW(path, l):
     df1 = pd.read_csv(input_file+'1_'+l, encoding="utf-8", index_col=0)
     df2 = pd.read_csv(input_file+'2_'+l, encoding="utf-8", index_col=0)
     df_count_word  = pd.concat([df1, df2]) 
-    return(df_count_word)
+    return df_count_word
 
 df_data_en = load_corpus('../data/preprocess_txt_en')
 df_data_fr = load_corpus('../data/preprocess_txt_fr')
@@ -32,7 +32,7 @@ n1 = 0
 
 nb_mots_en = 199 # len(corpus_en)
 nb_mots_fr = 330 # len(corpus_fr)
-
+'''
 # On modifie df_count_word en indiquant la présence d'un mot par 1 (au lieu du nombre d'occurences)
 df_count_word_en = df_count_word_en[df_count_word_en==0].fillna(1)
 df_count_word_fr = df_count_word_fr[df_count_word_fr==0].fillna(1)
@@ -41,7 +41,7 @@ df_count_word_fr = df_count_word_fr[df_count_word_fr==0].fillna(1)
 if ('new' in df_count_word_en.columns):
     df_count_word_en['new']=df_count_word_en['new']*2
     df_count_word_fr['new']=df_count_word_fr['new']*2
-
+'''
 # ============
 '''
 def calc_kmeans(l_src,l_tgt):
