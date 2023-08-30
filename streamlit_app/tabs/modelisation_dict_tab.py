@@ -111,7 +111,7 @@ def calcul_dic(Lang,Algo,Metrique):
         df_dic = pd.read_csv('../data/dict_ref_'+Lang+'.csv',header=0,index_col=0, encoding ="utf-8", sep=';',keep_default_na=False).T.sort_index(axis=1)
     return df_dic
 # ============
-'''
+
 def display_translation(n1,dict, Lang):
     global df_data_src, df_data_tgt
 
@@ -128,7 +128,7 @@ def display_translation(n1,dict, Lang):
 
 def display_dic(df_dic):
     st.dataframe(df_dic.T, height=600)
-
+'''
 
 
 def run():
