@@ -82,7 +82,7 @@ def calc_knn(l_src,l_tgt, metric):
     knn.fit(X_train, y_train)
 
     # Création et affichage du dictionnaire
-    df_dic = pd.DataFrame(data=df_count_word_tgt.columns[knn.predict(df_count_word_src.T)],index=df_count_word_en.T.index,columns=[l_tgt])
+    df_dic = pd.DataFrame(data=df_count_word_tgt.columns[knn.predict(df_count_word_src.T)],index=df_count_word_src.T.index,columns=[l_tgt])
     df_dic.index.name = l_src
     df_dic = df_dic.T
 
