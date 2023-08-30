@@ -1,19 +1,27 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from PIL import Image
+import os
 
 
 title = "Traduction mot à mot"
 sidebar_name = "Traduction mot à mot"
 
+def load_corpus(path):
+    input_file = os.path.join(path)
+    with open(input_file, "r",  encoding="utf-8") as f:
+        data = f.read()
+        data = data.split('\n')
+        data=data[:-1]
+    return pd.DataFrame(data)
+
+
 def calcul_dic(Lang,Algo,Metrique):
 
-
     if Algo=='Manuel':
-        df_dic = pd.read_csv('../data/dict_ref_'+Lang+'.csv',header=0,index_col=0, encoding ="utf-8", sep=';',keep_default_na=False).T
+        df_dic = pd.read_csv('../data/dict_ref_'+Lang+'.csv',header=0,index_col=0, encoding ="utf-8", sep=';',keep_default_na=False).T.sort_index()
     else:
-        df_dic = pd.read_csv('../data/dict_ref_'+Lang+'.csv',header=0,index_col=0, encoding ="utf-8", sep=';',keep_default_na=False).T
+        df_dic = pd.read_csv('../data/dict_ref_'+Lang+'.csv',header=0,index_col=0, encoding ="utf-8", sep=';',keep_default_na=False).T.sort_index()
     return df_dic
 
 def display_dic(df_dic, type, target_lang):
@@ -39,11 +47,16 @@ def run():
     Metrique = ''
     if (Algo == 'KNN'):
         Metrique = st.radio('Metrique:',('minkowski', 'cosine', 'chebyshev', 'manhattan', 'euclidean'), horizontal=True)
+
+    if (Lang=='en_fr'):
+        df_data = load_corpus('../data/preprocess_txt_en').iloc[:-4]
     else:
-        st.write("")
-        st.write("")
-        st.write("")
-        st.write("")
+        df_data = load_corpus('../data/preprocess_txt_fr').iloc[:-4]
+    df_data.columns = ['Phrase']
+
+    sentence1 = st.selectbox("1ere phrase à traduire avec le dictionnaire sélectionné", df_data)
+    st.write(sentence1)
+    n1 = df_data[df_data['Phrase']==sentence1].index.values
     df_dic = calcul_dic(Lang,Algo,Metrique)
+    st.write("No phrase:"+str(n1[0]))
     display_dic(df_dic,'ref',Lang)
-    
