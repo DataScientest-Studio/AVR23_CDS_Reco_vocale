@@ -23,7 +23,7 @@ def load_BOW(path, l):
     df2 = pd.read_csv(input_file+'2_'+l, encoding="utf-8", index_col=0)
     df_count_word  = pd.concat([df1, df2]) 
     return df_count_word
-'''
+
 df_data_en = load_corpus('../data/preprocess_txt_en')
 df_data_fr = load_corpus('../data/preprocess_txt_fr')
 df_count_word_en = load_BOW('../data/preprocess_df_count_word', 'en')
@@ -32,7 +32,7 @@ n1 = 0
 
 nb_mots_en = 199 # len(corpus_en)
 nb_mots_fr = 330 # len(corpus_fr)
-'''
+
 '''
 # On modifie df_count_word en indiquant la présence d'un mot par 1 (au lieu du nombre d'occurences)
 df_count_word_en = df_count_word_en[df_count_word_en==0].fillna(1)
