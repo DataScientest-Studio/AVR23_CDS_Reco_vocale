@@ -274,7 +274,7 @@ def count_world(data):
                           
 def display_preprocess_results(lang, data, data_split, data_lem, data_wosw, txt_n_unique_val):
 
-    global max_lines, first_line, lemmatize_to_do, stopwords_to_do
+    global max_lines, first_line, last_line, lemmatize_to_do, stopwords_to_do
     corpus = []
     nb_phrases = len(data)
     corpus, nb_mots, nb_mots_uniques = count_world(data)
@@ -297,7 +297,7 @@ def display_preprocess_results(lang, data, data_split, data_lem, data_wosw, txt_
     with tab2:
         st.subheader("Tokenisation")
         st.write('Texte "splited":')
-        st.dataframe(pd.DataFrame(data=data_split).head(max_lines_to_display), width=800)
+        st.dataframe(pd.DataFrame(data=data_split, index=range(first_line,last_line)).head(max_lines_to_display).fillna(''), width=800)
         st.write("**Nombre de mots uniques                : "+str(nb_mots_uniques)+"**") 
         st.write("")
         st.write("\n**Mots uniques:**")
@@ -307,7 +307,7 @@ def display_preprocess_results(lang, data, data_split, data_lem, data_wosw, txt_
     with tab3:
         st.subheader("Lemmatisation")
         if lemmatize_to_do:  
-            st.dataframe(pd.DataFrame(data=data_lem,columns=['Texte lemmatisé']).head(max_lines_to_display), width=800)
+            st.dataframe(pd.DataFrame(data=data_lem,columns=['Texte lemmatisé'],index=range(first_line,last_line)).head(max_lines_to_display), width=800)
             # Si langue anglaise, affichage du taggage des mots
             if lang == 'en':
                 for i in range(min(5,len(data))):
@@ -320,7 +320,7 @@ def display_preprocess_results(lang, data, data_split, data_lem, data_wosw, txt_
     with tab4:
         st.subheader("Sans Stopword")
         if stopwords_to_do:
-            st.dataframe(pd.DataFrame(data=data_wosw,columns=['Texte sans stopwords']).head(max_lines_to_display), width=800)
+            st.dataframe(pd.DataFrame(data=data_wosw,columns=['Texte sans stopwords'],index=range(first_line,last_line)).head(max_lines_to_display), width=800)
             st.write("**Nombre de mots uniques sans stop words: "+str(nb_mots_wo_stopword)+"**")
             st.write("")  
             st.write("\n**Mots uniques sans stop words:**")
@@ -328,7 +328,7 @@ def display_preprocess_results(lang, data, data_split, data_lem, data_wosw, txt_
 
 
 def run():
-    global max_lines, first_line, lemmatize_to_do, stopwords_to_do
+    global max_lines, first_line, last_line, lemmatize_to_do, stopwords_to_do
     global full_txt_en, full_txt_split_en, full_txt_lem_en, full_txt_wo_stopword_en, full_df_count_word_en
     global full_txt_fr, full_txt_split_fr, full_txt_lem_fr, full_txt_wo_stopword_fr, full_df_count_word_fr
 
