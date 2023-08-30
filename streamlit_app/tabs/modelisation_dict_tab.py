@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import os
-from sklearn.cluster import KMeans
+# from sklearn.cluster import KMeans
 # from sklearn.neighbors import KNeighborsClassifier
 
 
@@ -43,6 +43,7 @@ if ('new' in df_count_word_en.columns):
     df_count_word_fr['new']=df_count_word_fr['new']*2
 
 # ============
+'''
 def calc_kmeans(l_src,l_tgt):
     global df_count_word_src, df_count_word_tgt, nb_mots_src, nb_mots_tgt
 
@@ -110,7 +111,7 @@ def calcul_dic(Lang,Algo,Metrique):
         df_dic = pd.read_csv('../data/dict_ref_'+Lang+'.csv',header=0,index_col=0, encoding ="utf-8", sep=';',keep_default_na=False).T.sort_index(axis=1)
     return df_dic
 # ============
-
+'''
 def display_translation(n1,dict, Lang):
     global df_data_src, df_data_tgt
 
@@ -161,11 +162,11 @@ def run():
     sentence1 = st.selectbox("Selectionnez la 1ere des 5 phrase à traduire avec le dictionnaire sélectionné", df_data_src.iloc[:-4],index=int(n1) )
     n1 = df_data_src[df_data_src[0]==sentence1].index.values[0]
     st.write("## **Dictionnaire calculé et traduction mot à mot :**\n")
-    df_dic = calcul_dic(Lang,Algo,Metrique)
+    # df_dic = calcul_dic(Lang,Algo,Metrique)
     col1, col2 = st.columns([0.25, 0.75])
     with col1:
         st.write("#### **Dictionnaire**")
-        display_dic(df_dic)
+        # display_dic(df_dic)
     with col2:
         st.write("#### **Traduction**")
-        display_translation(n1, df_dic, Lang)   
+        # display_translation(n1, df_dic, Lang)   
