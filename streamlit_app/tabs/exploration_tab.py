@@ -49,7 +49,7 @@ max_lines_to_display = 50
 with contextlib.redirect_stdout(open(os.devnull, "w")):
     nltk.download('stopwords')
 
-@st.cache_data
+@st.cache_data(persist=True)
 def load_data(path):
     
     input_file = os.path.join(path)
@@ -81,7 +81,7 @@ def load_preprocessed_data(path,data_type):
             data=data2
         return data
 
-@st.cache_data
+@st.cache_data(persist=True)
 def load_all_preprocessed_data(lang):
     txt             =load_preprocessed_data('../data/preprocess_txt_'+lang,0)
     txt_split       = load_preprocessed_data('../data/preprocess_txt_split_'+lang,3)

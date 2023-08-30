@@ -67,7 +67,7 @@ def load_preprocessed_data(path,data_type):
             data=data2
         return data
     
-@st.cache_data  
+@st.cache_data(persist=True)
 def load_all_preprocessed_data(lang):
     txt           =load_preprocessed_data('../data/preprocess_txt_'+lang,0)
     corpus        =load_preprocessed_data('../data/preprocess_corpus_'+lang,0)
