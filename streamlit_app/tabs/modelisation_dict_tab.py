@@ -152,7 +152,7 @@ def load_dic(Lang,Algo,Metrique):
             if Algo!='knn': Metrique = ''
             else: Metrique = Metrique+'_'
     input_file = os.path.join('../data/dict_'+Algo+'_'+Metrique+Lang)
-    return pd.read_csv(input_file, encoding="utf-8", index_col=0).T
+    return pd.read_csv(input_file, encoding="utf-8", index_col=0).T.sort_index(axis=1)
 # ============
 
 def display_translation(n1,dict, Lang):
