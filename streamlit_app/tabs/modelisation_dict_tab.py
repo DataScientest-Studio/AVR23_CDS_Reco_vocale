@@ -45,7 +45,7 @@ if ('new' in df_count_word_en.columns):
     df_count_word_fr['new']=df_count_word_fr['new']*2
 
 # ============
-
+"""
 def calc_kmeans(l_src,l_tgt):
     global df_count_word_src, df_count_word_tgt, nb_mots_src, nb_mots_tgt
 
@@ -114,7 +114,7 @@ def calc_rf(l_src,l_tgt):
     # print(f"Précision du dictionnaire = {translation_quality['Précision du dictionnaire'].loc['RF EN->FR']}%")
     # display(rf_dict_EN_FR)
     return df_dic
-"""
+
 def calcul_dic(Lang,Algo,Metrique):
 
     if Lang[:2]=='en': 
