@@ -184,7 +184,7 @@ def proximite():
     labels = []
     tokens = []
 
-    nb_words = st.slider('Nombre de mots à afficher :',1,50, value=20)
+    nb_words = st.slider('Nombre de mots à afficher :',5,50, value=20)
     df = pd.read_csv('../data/dict_we_en_fr',header=0,index_col=0, encoding ="utf-8", keep_default_na=False)
     words_en = df.index.to_list()[:nb_words]
     words_fr = df['Francais'].to_list()[:nb_words]
@@ -197,7 +197,7 @@ def proximite():
         labels.append(word)
     tokens = pd.DataFrame(tokens)
 
-    tsne_model = TSNE(perplexity=6, n_components=2, init='pca', n_iter=1000, random_state=23)
+    tsne_model = TSNE(perplexity=6, n_components=2, init='pca', n_iter=2000, random_state=23)
     new_values = tsne_model.fit_transform(tokens)
 
     fig =plt.figure(figsize=(16, 16)) 
@@ -219,7 +219,6 @@ def proximite():
                      va='bottom',
                      color= color,
                      size=20)
-    
     plt.title("Proximité des mots anglais avec leur traduction", fontsize=30, color="green")
     plt.legend(loc='best');
     st.pyplot(fig)

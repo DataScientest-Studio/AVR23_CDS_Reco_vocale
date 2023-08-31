@@ -147,7 +147,7 @@ def load_dic(Lang,Algo,Metrique):
     Algo = Algo.lower()
     if Algo=='random forest' : Algo = "rf"
     else:
-        if Algo=='word embedding' : Algo = "manuel"
+        if Algo=='word embedding' : Algo = "we"
         else:
             if Algo!='knn': Metrique = ''
             else: Metrique = Metrique+'_'
