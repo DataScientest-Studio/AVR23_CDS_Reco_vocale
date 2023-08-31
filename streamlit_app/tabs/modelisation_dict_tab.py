@@ -18,6 +18,14 @@ def load_corpus(path):
         data=data[:-1]
     return pd.DataFrame(data)
 
+df_data_en = load_corpus('../data/preprocess_txt_en')
+df_data_fr = load_corpus('../data/preprocess_txt_fr')
+
+"""
+nb_mots_en = 199 # len(corpus_en)
+nb_mots_fr = 330 # len(corpus_fr)
+
+
 # @st.cache_data(ttl='1h00s')
 def load_BOW(path, l):
     input_file = os.path.join(path)
@@ -26,14 +34,12 @@ def load_BOW(path, l):
     df_count_word  = pd.concat([df1, df2]) 
     return df_count_word
 
-df_data_en = load_corpus('../data/preprocess_txt_en')
-df_data_fr = load_corpus('../data/preprocess_txt_fr')
+
 df_count_word_en = load_BOW('../data/preprocess_df_count_word', 'en')
 df_count_word_fr = load_BOW('../data/preprocess_df_count_word', 'fr')
 n1 = 0
 
-nb_mots_en = 199 # len(corpus_en)
-nb_mots_fr = 330 # len(corpus_fr)
+
 
 # On modifie df_count_word en indiquant la présence d'un mot par 1 (au lieu du nombre d'occurences)
 df_count_word_en = df_count_word_en[df_count_word_en==0].fillna(1)
@@ -45,7 +51,7 @@ if ('new' in df_count_word_en.columns):
     df_count_word_fr['new']=df_count_word_fr['new']*2
 
 # ============
-"""
+
 def calc_kmeans(l_src,l_tgt):
     global df_count_word_src, df_count_word_tgt, nb_mots_src, nb_mots_tgt
 
@@ -169,8 +175,8 @@ def display_dic(df_dic):
 
 
 def run():
-    global df_data_src, df_data_tgt, df_count_word_src, df_count_word_tgt, nb_mots_src, nb_mots_tgt, n1
-    global df_data_en, df_data_fr, nb_mots_en, df_count_word_en, df_count_word_fr, nb_mots_en, nb_mots_fr
+    global n1, df_data_src, df_data_tgt, df_data_en, df_data_fr, # , df_count_word_src, df_count_word_tgt, nb_mots_src, nb_mots_tgt
+    # global  nb_mots_en, df_count_word_en, df_count_word_fr, nb_mots_en, nb_mots_fr
 
     st.title(title)
     st.write("## **Données d'entrée :**\n")
@@ -184,17 +190,17 @@ def run():
     if (Lang=='en_fr'):
         df_data_src = df_data_en
         df_data_tgt = df_data_fr
-        df_count_word_src = df_count_word_en
-        df_count_word_tgt = df_count_word_fr
-        nb_mots_src = nb_mots_en
-        nb_mots_tgt = nb_mots_fr
+        # df_count_word_src = df_count_word_en
+        # df_count_word_tgt = df_count_word_fr
+        # nb_mots_src = nb_mots_en
+        # nb_mots_tgt = nb_mots_fr
     else:
         df_data_src = df_data_fr
         df_data_tgt = df_data_en
-        df_count_word_src = df_count_word_fr
-        df_count_word_tgt = df_count_word_en
-        nb_mots_src = nb_mots_fr
-        nb_mots_tgt = nb_mots_en
+        # df_count_word_src = df_count_word_fr
+        # df_count_word_tgt = df_count_word_en
+        # nb_mots_src = nb_mots_fr
+        # nb_mots_tgt = nb_mots_en
 
     # df_data_src.columns = ['Phrase']
     sentence1 = st.selectbox("Selectionnez la 1ere des 5 phrase à traduire avec le dictionnaire sélectionné", df_data_src.iloc[:-4],index=int(n1) )
