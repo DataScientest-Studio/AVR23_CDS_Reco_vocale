@@ -29,7 +29,7 @@ if ((first_line+max_lines)>137860):
 max_lines_to_display = 50
 
 
-# nltk.download('punkt')
+nltk.download('punkt')
 # nltk.download('averaged_perceptron_tagger')
 # nltk.download('stopwords')
 
