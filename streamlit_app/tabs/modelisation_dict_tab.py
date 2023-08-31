@@ -175,7 +175,7 @@ def display_dic(df_dic):
 
 
 def run():
-    global n1, df_data_src, df_data_tgt, df_data_en, df_data_fr, # , df_count_word_src, df_count_word_tgt, nb_mots_src, nb_mots_tgt
+    global n1, df_data_src, df_data_tgt, df_data_en, df_data_fr # , df_count_word_src, df_count_word_tgt, nb_mots_src, nb_mots_tgt
     # global  nb_mots_en, df_count_word_en, df_count_word_fr, nb_mots_en, nb_mots_fr
 
     st.title(title)
