@@ -20,7 +20,7 @@ def load_corpus(path):
 
 df_data_en = load_corpus('../data/preprocess_txt_en')
 df_data_fr = load_corpus('../data/preprocess_txt_fr')
-
+n1 = 0
 """
 nb_mots_en = 199 # len(corpus_en)
 nb_mots_fr = 330 # len(corpus_fr)
@@ -37,7 +37,7 @@ def load_BOW(path, l):
 
 df_count_word_en = load_BOW('../data/preprocess_df_count_word', 'en')
 df_count_word_fr = load_BOW('../data/preprocess_df_count_word', 'fr')
-n1 = 0
+
 
 
 
