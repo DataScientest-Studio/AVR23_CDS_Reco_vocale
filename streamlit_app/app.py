@@ -17,7 +17,7 @@ if ('/' in thisfile):
 
 
 # Tabs in the ./tabs folder, imported here.
-from tabs import intro, exploration_tab, data_viz_tab, modelisation_dict_tab, modelisation_seq2seq_tab
+from tabs import intro, exploration_tab, data_viz_tab # , modelisation_dict_tab, modelisation_seq2seq_tab
 
 
 with open("style.css", "r") as f:
@@ -34,8 +34,8 @@ TABS = OrderedDict(
         (intro.sidebar_name, intro),
         (exploration_tab.sidebar_name, exploration_tab),
         (data_viz_tab.sidebar_name, data_viz_tab),
-        (modelisation_dict_tab.sidebar_name, modelisation_dict_tab),
-        (modelisation_seq2seq_tab.sidebar_name, modelisation_seq2seq_tab),
+        # (modelisation_dict_tab.sidebar_name, modelisation_dict_tab),
+        # (modelisation_seq2seq_tab.sidebar_name, modelisation_seq2seq_tab),
     ]
 )
 
