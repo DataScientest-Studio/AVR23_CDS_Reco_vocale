@@ -7,8 +7,8 @@ from nltk.tokenize import word_tokenize
 from ast import literal_eval
 # import contextlib
 # import re
-import nltk
-from nltk.corpus import stopwords
+# import nltk
+# from nltk.corpus import stopwords
 
 title = "Exploration et Preprocessing"
 sidebar_name = "Exploration et Preprocessing"
@@ -29,9 +29,9 @@ if ((first_line+max_lines)>137860):
 max_lines_to_display = 50
 
 
-nltk.download('punkt')
-nltk.download('averaged_perceptron_tagger')
-nltk.download('stopwords')
+# nltk.download('punkt')
+# nltk.download('averaged_perceptron_tagger')
+# nltk.download('stopwords')
 
 def load_data(path):
     
