@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import collections
 from nltk.tokenize import word_tokenize
+from nltk import download
 from ast import literal_eval
 # import contextlib
 # import re
@@ -29,7 +30,7 @@ if ((first_line+max_lines)>137860):
 max_lines_to_display = 50
 
 
-nltk.download('punkt')
+download('punkt')
 # nltk.download('averaged_perceptron_tagger')
 # nltk.download('stopwords')
 
