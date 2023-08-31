@@ -2,9 +2,9 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import os
-from sklearn.cluster import KMeans
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.ensemble import RandomForestClassifier
+# from sklearn.cluster import KMeans
+# from sklearn.neighbors import KNeighborsClassifier
+# from sklearn.ensemble import RandomForestClassifier
 
 title = "Traduction mot à mot"
 sidebar_name = "Traduction mot à mot"
@@ -114,7 +114,7 @@ def calc_rf(l_src,l_tgt):
     # print(f"Précision du dictionnaire = {translation_quality['Précision du dictionnaire'].loc['RF EN->FR']}%")
     # display(rf_dict_EN_FR)
     return df_dic
-
+"""
 def calcul_dic(Lang,Algo,Metrique):
 
     if Lang[:2]=='en': 
@@ -135,6 +135,18 @@ def calcul_dic(Lang,Algo,Metrique):
     else:
         df_dic = pd.read_csv('../data/dict_ref_'+Lang+'.csv',header=0,index_col=0, encoding ="utf-8", sep=';',keep_default_na=False).T.sort_index(axis=1)
     return df_dic
+"""
+def load_dic(Lang,Algo,Metrique):
+
+    Algo = Algo.lower()
+    if Algo=='random forest' : Algo = "rf"
+    else:
+        if Algo=='word embedding' : Algo = "manuel"
+        else:
+            if Algo!='knn': Metrique = ''
+            else: Metrique = Metrique+'_'
+    input_file = os.path.join('../data/dict_'+Algo+'_'+Metrique+Lang)
+    return pd.read_csv(input_file, encoding="utf-8", index_col=0).T
 # ============
 
 def display_translation(n1,dict, Lang):
@@ -164,7 +176,7 @@ def run():
     st.write("## **Données d'entrée :**\n")
     Sens = st.radio('Sens :',('Anglais -> Français','Français -> Anglais'), horizontal=True)
     Lang = ('en_fr' if Sens=='Anglais -> Français' else 'fr_en')
-    Algo = st.radio('Algorithme :',('Manuel', 'KMeans','KNN','Random Forest',' Word Embedding'), horizontal=True)
+    Algo = st.radio('Algorithme :',('Manuel', 'KMeans','KNN','Random Forest','Word Embedding'), horizontal=True)
     Metrique = ''
     if (Algo == 'KNN'):
         Metrique = st.radio('Metrique:',('minkowski', 'cosine', 'chebyshev', 'manhattan', 'euclidean'), horizontal=True)
@@ -188,7 +200,9 @@ def run():
     sentence1 = st.selectbox("Selectionnez la 1ere des 5 phrase à traduire avec le dictionnaire sélectionné", df_data_src.iloc[:-4],index=int(n1) )
     n1 = df_data_src[df_data_src[0]==sentence1].index.values[0]
     st.write("## **Dictionnaire calculé et traduction mot à mot :**\n")
-    df_dic = calcul_dic(Lang,Algo,Metrique)
+    # df_dic = calcul_dic(Lang,Algo,Metrique)
+    df_dic = load_dic(Lang,Algo,Metrique)
+
     col1, col2 = st.columns([0.25, 0.75])
     with col1:
         st.write("#### **Dictionnaire**")
