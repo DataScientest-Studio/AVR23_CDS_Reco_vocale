@@ -12,4 +12,5 @@ streamlit==1.23.1
 pathlib
 gensim==4.3.1
 networkx==2.7.0
+scikit-learn==1.1.3
 
