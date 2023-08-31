@@ -1,31 +1,14 @@
 import streamlit as st
-# from PIL import Image
 import os
-# import time
-# import random
-import ast
-import contextlib
 import numpy as np
 import pandas as pd
 import collections
-import re
-# import string
-# import matplotlib.pyplot as plt
-# import seaborn as sns
-import nltk
 from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords
-# import subprocess
-# import sys
-# import spacy_streamlit
-
-
-
-import warnings
-warnings.filterwarnings('ignore')
-
-nltk.download('punkt')
-nltk.download('averaged_perceptron_tagger')
+from ast import literal_eval
+# import contextlib
+# import re
+# import nltk
+# from nltk.corpus import stopwords
 
 title = "Exploration et Preprocessing"
 sidebar_name = "Exploration et Preprocessing"
@@ -45,10 +28,16 @@ if ((first_line+max_lines)>137860):
 # Nombre maximum de ligne à afficher pour les DataFrame
 max_lines_to_display = 50
 
-    
+"""
+import warnings
+warnings.filterwarnings('ignore')
+
+nltk.download('punkt')
+nltk.download('averaged_perceptron_tagger')
+   
 with contextlib.redirect_stdout(open(os.devnull, "w")):
     nltk.download('stopwords')
-
+"""
 def load_data(path):
     
     input_file = os.path.join(path)
@@ -77,7 +66,7 @@ def load_preprocessed_data(path,data_type):
         elif data_type ==3:
             data2 = []
             for d in data[:-1]:
-                data2.append(ast.literal_eval(d))
+                data2.append(literal_eval(d))
             data=data2
         return data
 
@@ -95,9 +84,9 @@ full_txt_en = load_data('../data/small_vocab_en')
 full_txt_fr = load_data('../data/small_vocab_fr')
 
 # Chargement du résultat du préprocessing
-full_txt_en, full_txt_split_en, full_txt_lem_en, full_txt_wo_stopword_en, full_df_count_word_en = load_all_preprocessed_data('en')
-full_txt_fr, full_txt_split_fr, full_txt_lem_fr, full_txt_wo_stopword_fr, full_df_count_word_fr = load_all_preprocessed_data('fr')
-
+_ , full_txt_split_en, full_txt_lem_en, full_txt_wo_stopword_en, full_df_count_word_en = load_all_preprocessed_data('en')
+_ , full_txt_split_fr, full_txt_lem_fr, full_txt_wo_stopword_fr, full_df_count_word_fr = load_all_preprocessed_data('fr')
+"""
 def remove_stopwords(text, lang): 
     stop_words = set(stopwords.words(lang))
     # stop_words will contain  set all english stopwords
@@ -169,11 +158,7 @@ def lemmatize(sentence,lang):
     return lemmatized_sentence
 
 
-def preprocess_txt (data, lang):
-    
-    # nltk.download('punkt')
-    # nltk.download('averaged_perceptron_tagger')
-    
+def preprocess_txt (data, lang): 
   
     word_count = collections.Counter()
     word_lem_count = collections.Counter()
@@ -263,7 +248,7 @@ def preprocess_txt (data, lang):
     txt_n_unique_val=  pd.DataFrame(columns=corpus,index=range(nb_phrases), data=countvectors.todense()).astype(float)     
     
     return data, corpus, data_split, data_lemmatized, data_wosw, txt_n_unique_val, sentence_length, data_length_wo_stopwords, data_lem_length      
- 
+ """
 
 def count_world(data):
     word_count = collections.Counter()
@@ -311,10 +296,12 @@ def display_preprocess_results(lang, data, data_split, data_lem, data_wosw, txt_
         if lemmatize_to_do:  
             st.dataframe(pd.DataFrame(data=data_lem,columns=['Texte lemmatisé'],index=range(first_line,last_line)).head(max_lines_to_display), width=800)
             # Si langue anglaise, affichage du taggage des mots
+            """
             if lang == 'en':
                 for i in range(min(5,len(data))):
                     s = str(nltk.pos_tag(data_split[i]))
                     st.markdown("**Texte avec Tags     "+str(i)+"** : "+s)
+            """
             st.write("**Nombre de mots uniques lemmatisés     : "+str(nb_mots_lem)+"**")
             st.write("")
             st.write("\n**Mots uniques lemmatisés:**")
@@ -358,11 +345,6 @@ def run():
         st.dataframe(pd.DataFrame(data=full_txt_fr,columns=['Texte']).loc[first_line:last_line-1].head(max_lines_to_display), width=800)
     st.write("")
 
-    # Chargement des textes sélectionnés dans les 2 langues (max lignes = max_lines)
-    txt_en = full_txt_en[first_line:last_line]
-    txt_fr = full_txt_fr[first_line:last_line]   
-    # Elimination des phrases non traduites
-    txt_en, txt_fr = clean_untranslated_sentence(txt_en, txt_fr)
     # Chargement du résultat du préprocessing (max lignes = max_lines)
     txt_en = full_txt_en[first_line:last_line]
     txt_split_en = full_txt_split_en[first_line:last_line]

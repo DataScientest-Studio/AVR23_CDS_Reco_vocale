@@ -1,15 +1,10 @@
 import streamlit as st
 from PIL import Image
 import os
-# import time
-# import random
 import ast
 import contextlib
 import numpy as np
 import pandas as pd
-# import collections
-# import re
-# import string
 import matplotlib.pyplot as plt
 import seaborn as sns
 from wordcloud import WordCloud
@@ -17,7 +12,7 @@ import nltk
 from nltk.corpus import stopwords
 from gensim import corpora
 import networkx as nx
-# from pyvis import network as nx
+
 
 title = "Data Vizualization"
 sidebar_name = "Data Vizualization"
