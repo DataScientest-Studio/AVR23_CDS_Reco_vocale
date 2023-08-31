@@ -197,7 +197,7 @@ def proximite():
         labels.append(word)
     tokens = pd.DataFrame(tokens)
 
-    tsne_model = TSNE(perplexity=6, n_components=2, init='pca', n_iter=5000, random_state=23)
+    tsne_model = TSNE(perplexity=6, n_components=2, init='pca', n_iter=1000, random_state=23)
     new_values = tsne_model.fit_transform(tokens)
 
     fig =plt.figure(figsize=(16, 16)) 
