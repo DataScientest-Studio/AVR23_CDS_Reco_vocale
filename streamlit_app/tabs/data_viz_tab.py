@@ -12,7 +12,8 @@ import nltk
 from nltk.corpus import stopwords
 from gensim import corpora
 import networkx as nx
-
+from sklearn.manifold import TSNE
+from gensim.models import KeyedVectors
 
 title = "Data Vizualization"
 sidebar_name = "Data Vizualization"
@@ -70,11 +71,12 @@ def load_all_preprocessed_data(lang):
     txt_split     = load_preprocessed_data('../data/preprocess_txt_split_'+lang,3)
     df_count_word = pd.concat([load_preprocessed_data('../data/preprocess_df_count_word1_'+lang,1), load_preprocessed_data('../data/preprocess_df_count_word2_'+lang,1)]) 
     sent_len      =load_preprocessed_data('../data/preprocess_sent_len_'+lang,2)
-    return txt, corpus, txt_split, df_count_word,sent_len
+    vec_model= KeyedVectors.load_word2vec_format('../data/mini.wiki.'+lang+'.align.vec')
+    return txt, corpus, txt_split, df_count_word,sent_len, vec_model
 
 #Chargement des textes complet dans les 2 langues
-full_txt_en, full_corpus_en, full_txt_split_en, full_df_count_word_en,full_sent_len_en = load_all_preprocessed_data('en')
-full_txt_fr, full_corpus_fr, full_txt_split_fr, full_df_count_word_fr,full_sent_len_fr = load_all_preprocessed_data('fr')
+full_txt_en, full_corpus_en, full_txt_split_en, full_df_count_word_en,full_sent_len_en, vec_model_en = load_all_preprocessed_data('en')
+full_txt_fr, full_corpus_fr, full_txt_split_fr, full_df_count_word_fr,full_sent_len_fr, vec_model_fr= load_all_preprocessed_data('fr')
 
 
 def plot_word_cloud(text, title, masque, stop_words, background_color = "white"):
@@ -175,58 +177,59 @@ def graphe_co_occurence(txt_split,corpus):
     plt.axis("off");
     st.pyplot(fig)
 
-def proximite(df_count_word, corpus):
-    from sklearn.manifold import TSNE
+def proximite():
+    global vec_model_en,vec_model_fr
 
-    df_count_word = drop_df_null_col(df_count_word)
-    nb_occurences = calcul_occurence(df_count_word)
-    
-    "Creates and TSNE model and plots it"
+    # Creates and TSNE model and plots it"
     labels = []
     tokens = []
 
-    nb_words = min(50,len(corpus))
-    words_en = nb_occurences.iloc[:nb_words,0].index.tolist()
-    # words_fr = (we_dict_EN_FR[words_en].T)['Francais'].tolist()
+    nb_words = st.slider('Nombre de mots à afficher :',1,50, value=20)
+    df = pd.read_csv('../data/dict_we_en_fr',header=0,index_col=0, encoding ="utf-8", keep_default_na=False)
+    words_en = df.index.to_list()[:nb_words]
+    words_fr = df['Francais'].to_list()[:nb_words]
 
     for word in words_en: 
-        #tokens.append(en_model[word])
+        tokens.append(vec_model_en[word])
         labels.append(word)
-        # for word in words_fr: 
-        #    tokens.append(fr_model[word])
-        #    labels.append(word)
-        #    tokens = pd.DataFrame(tokens)
+    for word in words_fr: 
+        tokens.append(vec_model_fr[word])
+        labels.append(word)
+    tokens = pd.DataFrame(tokens)
 
     tsne_model = TSNE(perplexity=6, n_components=2, init='pca', n_iter=5000, random_state=23)
     new_values = tsne_model.fit_transform(tokens)
 
-    fig=plt.figure() # figsize=(16, 16)
+    fig =plt.figure(figsize=(16, 16)) 
     x = []
     y = []
     for value in new_values:
         x.append(value[0])
         y.append(value[1])
         
-        for i in range(len(x)):
-            if i<nb_words  : color='green'
-            else: color='blue'
-            plt.scatter(x[i],y[i])
-            plt.annotate(labels[i],
-                         xy=(x[i], y[i]),
-                         xytext=(5, 2),
-                         textcoords='offset points',
-                         ha='right',
-                         va='bottom',
-                         color= color)
-            plt.title("Proximité des mots anglais avec leur traduction", fontsize=15, color="green")
+    for i in range(len(x)):
+        if i<nb_words  : color='green'
+        else: color='blue'
+        plt.scatter(x[i],y[i])
+        plt.annotate(labels[i],
+                     xy=(x[i], y[i]),
+                     xytext=(5, 2),
+                     textcoords='offset points',
+                     ha='right',
+                     va='bottom',
+                     color= color,
+                     size=20)
+    
+    plt.title("Proximité des mots anglais avec leur traduction", fontsize=30, color="green")
+    plt.legend(loc='best');
     st.pyplot(fig)
     
 
 def run():
     
     global max_lines, first_line, Langue
-    global full_txt_en, full_corpus_en, full_txt_split_en, full_df_count_word_en,full_sent_len_en 
-    global full_txt_fr, full_corpus_fr, full_txt_split_fr, full_df_count_word_fr,full_sent_len_fr 
+    global full_txt_en, full_corpus_en, full_txt_split_en, full_df_count_word_en,full_sent_len_en, vec_model_en 
+    global full_txt_fr, full_corpus_fr, full_txt_split_fr, full_df_count_word_fr,full_sent_len_fr, vec_model_fr 
     
     st.title(title)
 
@@ -299,6 +302,6 @@ def run():
             graphe_co_occurence(txt_split_fr[:1000],corpus_fr)
     with tab5:
         st.subheader("Proximité sémantique des mots") 
-        # proximite(df_count_word_en, corpus_en)
+        proximite()
         
 
