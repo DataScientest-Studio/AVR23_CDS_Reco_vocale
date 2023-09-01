@@ -14,4 +14,4 @@ networkx
 scikit-learn
 transformers
 tensorflow
-
+sentencepiece
