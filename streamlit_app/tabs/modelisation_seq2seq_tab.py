@@ -20,7 +20,7 @@ def load_corpus(path):
         data=data[:-1]
     return pd.DataFrame(data)
 
-@st.cache_data(ttl='1h00s')
+@st.cache_resource(ttl='1h00s')
 def load_all_data():
     df_data_en = load_corpus('../data/preprocess_txt_en')
     df_data_fr = load_corpus('../data/preprocess_txt_fr')
