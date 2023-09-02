@@ -25,7 +25,7 @@ def load_all_data():
     df_data_en = load_corpus('../data/preprocess_txt_en')
     df_data_fr = load_corpus('../data/preprocess_txt_fr')
     lang_classifier = pipeline('text-classification',model="papluca/xlm-roberta-base-language-detection")
-    translation_en_fr = pipeline('translation_en_to_fr', model="t5-small") #, model="Helsinki-NLP/opus-mt-en-fr"
+    translation_en_fr = pipeline('translation_en_to_fr', model="t5-base") #, model="Helsinki-NLP/opus-mt-en-fr"
     translation_fr_en = pipeline('translation_fr_to_en', model="Helsinki-NLP/opus-mt-fr-en") #, model="t5-base"
     return df_data_en, df_data_fr, translation_en_fr, translation_fr_en, lang_classifier
 
@@ -83,6 +83,7 @@ def run():
         display_translation(n1, Lang)
     else:
         custom_sentence = st.text_area(label="Saisir le texte à traduire")
+        st.button(label="Valider", type="primary")
         if custom_sentence!="":
             Lang_detected = lang_classifier (custom_sentence)[0]['label']
         else: Lang_detected=""
@@ -92,3 +93,5 @@ def run():
             st.write("**fr :**  "+translation_en_fr(custom_sentence, max_length=400)[0]['translation_text'])
         elif (Lang_detected=='fr'):
             st.write("**en  :**  "+translation_fr_en(custom_sentence, max_length=400)[0]['translation_text'])
+
+
