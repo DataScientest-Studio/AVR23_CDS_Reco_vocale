@@ -1,3 +1,13 @@
+title: Avr23 Cds Translation
+emoji: 🔥
+colorFrom: purple
+colorTo: red
+sdk: streamlit
+sdk_version: 1.26.0
+app_file: app.py
+pinned: false
+
+
 ![Alt Whaooh!](./streamlit_app/assets/miss-honey-glasses-off.gif)
 
 ## Introduction
