@@ -35,8 +35,8 @@ You can also run the **Streamlit App directly on the Cloud**:
 
 To run the **app locally** (be careful with the paths of the files in the app):
 ```shell
-conda create --name my-awesome-streamlit python=3.9
-conda activate my-awesome-streamlit
+conda create --name avr23-cds-translation python=3.9
+conda activate avr23-cds-translation
 pip install -r requirements.txt
 streamlit run app.py
 ```
