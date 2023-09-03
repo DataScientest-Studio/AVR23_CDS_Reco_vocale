@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-version https://git-lfs.github.com/spec/v1
-oid sha256:a6acd675ac922958a324e20d8e361d35050caabfa9c3bdad6c84a467712fd7b2
-size 1690
-=======
 title: Avr23 Cds Translation
 emoji: 🔥
 colorFrom: purple
@@ -47,4 +42,3 @@ streamlit run app.py
 ```
 
 The app should then be available at [localhost:8501](http://localhost:8501).
->>>>>>> 5f17777b5ea1faffd9feaa20feaac88592914511
