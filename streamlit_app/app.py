@@ -17,7 +17,7 @@ if ('/' in thisfile):
 
 
 # Tabs in the ./tabs folder, imported here.
-from tabs import intro, exploration_tab, data_viz_tab , modelisation_dict_tab, modelisation_seq2seq_tab
+from tabs import intro, exploration_tab, data_viz_tab, modelisation_dict_tab, modelisation_seq2seq_tab
 
 
 with open("style.css", "r") as f:

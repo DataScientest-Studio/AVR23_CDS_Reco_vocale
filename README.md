@@ -1,3 +1,18 @@
+<<<<<<< HEAD
+version https://git-lfs.github.com/spec/v1
+oid sha256:a6acd675ac922958a324e20d8e361d35050caabfa9c3bdad6c84a467712fd7b2
+size 1690
+=======
+title: Avr23 Cds Translation
+emoji: 🔥
+colorFrom: purple
+colorTo: red
+sdk: streamlit
+sdk_version: 1.26.0
+app_file: app.py
+pinned: false
+
+
 ![Alt Whaooh!](./streamlit_app/assets/miss-honey-glasses-off.gif)
 
 ## Introduction
@@ -25,10 +40,11 @@ You can also run the **Streamlit App directly on the Cloud**:
 
 To run the **app locally** (be careful with the paths of the files in the app):
 ```shell
-conda create --name my-awesome-streamlit python=3.9
-conda activate my-awesome-streamlit
+conda create --name avr23-cds-translation python=3.9
+conda activate avr23-cds-translation
 pip install -r requirements.txt
 streamlit run app.py
 ```
 
 The app should then be available at [localhost:8501](http://localhost:8501).
+>>>>>>> 5f17777b5ea1faffd9feaa20feaac88592914511

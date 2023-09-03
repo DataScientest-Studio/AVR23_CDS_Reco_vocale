@@ -15,6 +15,7 @@ import networkx as nx
 from sklearn.manifold import TSNE
 from gensim.models import KeyedVectors
 
+
 title = "Data Vizualization"
 sidebar_name = "Data Vizualization"
 
@@ -30,7 +31,7 @@ if ((first_line+max_lines)>137860):
 # Nombre maximum de ligne à afficher pour les DataFrame
 max_lines_to_display = 50
 
-#  @st.cache_data(ttl='1h00s')
+@st.cache_data(ttl='1h00s')
 def load_data(path):
     
     input_file = os.path.join(path)
@@ -43,7 +44,7 @@ def load_data(path):
     data = data.split('\n')
     return data[first_line:min(len(data),first_line+max_lines)]
 
-# @st.cache_data(ttl='1h00s')
+@st.cache_data(ttl='1h00s')
 def load_preprocessed_data(path,data_type):
     
     input_file = os.path.join(path)
@@ -64,7 +65,7 @@ def load_preprocessed_data(path,data_type):
             data=data2
         return data
     
-# @st.cache_data(ttl='1h00s')
+@st.cache_data(ttl='1h00s')
 def load_all_preprocessed_data(lang):
     txt           =load_preprocessed_data('../data/preprocess_txt_'+lang,0)
     corpus        =load_preprocessed_data('../data/preprocess_corpus_'+lang,0)
@@ -76,7 +77,7 @@ def load_all_preprocessed_data(lang):
 
 #Chargement des textes complet dans les 2 langues
 full_txt_en, full_corpus_en, full_txt_split_en, full_df_count_word_en,full_sent_len_en, vec_model_en = load_all_preprocessed_data('en')
-full_txt_fr, full_corpus_fr, full_txt_split_fr, full_df_count_word_fr,full_sent_len_fr, vec_model_fr= load_all_preprocessed_data('fr')
+full_txt_fr, full_corpus_fr, full_txt_split_fr, full_df_count_word_fr,full_sent_len_fr, vec_model_fr = load_all_preprocessed_data('fr')
 
 
 def plot_word_cloud(text, title, masque, stop_words, background_color = "white"):
@@ -233,7 +234,7 @@ def run():
     st.title(title)
 
     # 
-    st.write("## **Données d'entrée :**\n")
+    st.write("## **Paramètres :**\n")
     Langue = st.radio('Langue:',('Anglais','Français'), horizontal=True)
     first_line = st.slider('No de la premiere ligne à analyser :',0,137859)
     max_lines = st.select_slider('Nombre de lignes à analyser :',
@@ -300,7 +301,7 @@ def run():
         else:
             graphe_co_occurence(txt_split_fr[:1000],corpus_fr)
     with tab5:
-        st.subheader("Proximité sémantique des mots") 
+        st.subheader("Proximité sémantique des mots (Word Embedding)") 
         proximite()
         
 
