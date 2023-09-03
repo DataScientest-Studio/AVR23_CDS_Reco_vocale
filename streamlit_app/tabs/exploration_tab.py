@@ -281,7 +281,6 @@ def display_preprocess_results(lang, data, data_split, data_lem, data_wosw, txt_
         st.write("**Nombre de phrases                     : "+str(nb_phrases)+"**")
         st.write("**Nombre de mots                        : "+str(nb_mots)+"**")
         st.write("**Nombre de mots uniques                : "+str(nb_mots_uniques)+"**") 
-        st.write("collections version:",collections.__version__)
         st.write("") 
         st.write("\n**Nombre d'apparitions de chaque mot dans chaque phrase (Bag Of Words):**")
         st.dataframe(txt_n_unique_val.head(max_lines_to_display), width=800) 

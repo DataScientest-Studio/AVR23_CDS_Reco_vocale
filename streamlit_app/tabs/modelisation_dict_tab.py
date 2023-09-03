@@ -217,7 +217,7 @@ def run():
         nb_mots_tgt = nb_mots_en
 
     # df_data_src.columns = ['Phrase']
-    sentence1 = st.selectbox("Selectionnez la 1ere des 5 phrase à traduire avec le dictionnaire sélectionné", df_data_src.iloc[:-4],index=int(n1) )
+    sentence1 = st.selectbox("Selectionnez la 1ere des 5 phrases à traduire avec le dictionnaire sélectionné", df_data_src.iloc[:-4],index=int(n1) )
     n1 = df_data_src[df_data_src[0]==sentence1].index.values[0]
     """
     load_dico = st.checkbox('Load dic ?')
