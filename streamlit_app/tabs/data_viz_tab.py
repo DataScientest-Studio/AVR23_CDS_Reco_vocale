@@ -185,7 +185,7 @@ def proximite():
     labels = []
     tokens = []
 
-    nb_words = st.slider('Nombre de mots à afficher :',5,50, value=20)
+    nb_words = st.slider('Nombre de mots à afficher :',8,50, value=20)
     df = pd.read_csv('../data/dict_we_en_fr',header=0,index_col=0, encoding ="utf-8", keep_default_na=False)
     words_en = df.index.to_list()[:nb_words]
     words_fr = df['Francais'].to_list()[:nb_words]

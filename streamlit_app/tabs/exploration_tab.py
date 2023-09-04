@@ -299,10 +299,10 @@ def display_preprocess_results(lang, data, data_split, data_lem, data_wosw, txt_
         if lemmatize_to_do:  
             st.dataframe(pd.DataFrame(data=data_lem,columns=['Texte lemmatisé'],index=range(first_line,last_line)).head(max_lines_to_display), width=800)
             # Si langue anglaise, affichage du taggage des mots
-            if lang == 'en':
-                for i in range(min(5,len(data))):
-                    s = str(nltk.pos_tag(data_split[i]))
-                    st.markdown("**Texte avec Tags     "+str(i)+"** : "+s)
+            # if lang == 'en':
+            #     for i in range(min(5,len(data))):
+            #         s = str(nltk.pos_tag(data_split[i]))
+            #         st.markdown("**Texte avec Tags     "+str(i)+"** : "+s)
             st.write("**Nombre de mots uniques lemmatisés     : "+str(nb_mots_lem)+"**")
             st.write("")
             st.write("\n**Mots uniques lemmatisés:**")
