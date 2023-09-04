@@ -282,7 +282,7 @@ def display_preprocess_results(lang, data, data_split, data_lem, data_wosw, txt_
         st.write("**Nombre de mots                        : "+str(nb_mots)+"**")
         st.write("**Nombre de mots uniques                : "+str(nb_mots_uniques)+"**") 
         st.write("") 
-        st.write("\n**Nombre d'apparitions de chaque mot dans chaque phrase (Bag Of Words):**")
+        st.write("\n**Nombre d'apparitions de chaque mot dans chaque phrase (:red[Bag Of Words]):**")
         st.dataframe(txt_n_unique_val.head(max_lines_to_display), width=800) 
     with tab2:
         st.subheader("Tokenisation")
@@ -292,7 +292,7 @@ def display_preprocess_results(lang, data, data_split, data_lem, data_wosw, txt_
         st.write("")
         st.write("\n**Mots uniques:**")
         st.markdown(corpus[:500])
-        st.write("\n**Nombre d'apparitions de chaque mot dans chaque phrase (Bag Of Words):**")
+        st.write("\n**Nombre d'apparitions de chaque mot dans chaque phrase (:red[Bag Of Words]):**")
         st.dataframe(txt_n_unique_val.head(max_lines_to_display), width=800) 
     with tab3:
         st.subheader("Lemmatisation")
@@ -331,14 +331,14 @@ def run():
         Le traitement du langage naturel permet à l'ordinateur de comprendre et de traiter les langues humaines.
         Lors de notre projet, nous avons étudié le dataset small_vocab, proposés par Suzan Li, Chief Data Scientist chez Campaign Research à Toronto.
         Celui-ci représente un corpus de phrases simples en anglais, et sa traduction (approximative) en français. 
-        **Small_vocab** contient 137 860 phrases en anglais et français.  
+        :red[**Small_vocab**] contient 137 860 phrases en anglais et français.  
         Afin de découvrir ce corpus et de préparer la traduction, nous allons effectuer un certain nombre de tâches de pré-traitement (preprocessing).
         Ces taches sont, par exemple:  
-        * le **nettoyage** du texte (enlever les majuscules et la ponctuation) 
-        * la **tokenisation** (découpage du texte en mots) 
-        * la **lemmatisation** (traitement lexical qui permet de donner une forme unique à toutes les "variations" d'un même mot) 
-        * élimination des mots "transparents" (sans utilité pour la compréhension, tels que les articles).  
-        Ce prétraintement se conclut avec la contruction d'un **Bag Of Worlds**, c'est à dire une matrice qui compte le nombre d'apparition de chaque mots (colonne) dans chaque phrase (ligne)
+        * le :red[**nettoyage**] du texte (enlever les majuscules et la ponctuation) 
+        * la :red[**tokenisation**] (découpage du texte en mots) 
+        * la :red[**lemmatisation**] (traitement lexical qui permet de donner une forme unique à toutes les "variations" d'un même mot) 
+        * l'élimination des :red[**mots "transparents**"] (sans utilité pour la compréhension, tels que les articles).  
+        Ce prétraintement se conclut avec la contruction d'un :red[**Bag Of Worlds**], c'est à dire une matrice qui compte le nombre d'apparition de chaque mots (colonne) dans chaque phrase (ligne)
 
         """
     )
@@ -385,13 +385,22 @@ def run():
     # et calculer nombre d'occurences des mots dans chaque phrase
     if (Langue == 'Anglais'):
         st.write("## **Préprocessing de small_vocab_en :**\n")
-        # txt_en, corpus_en, txt_split_en, txt_lem_en, txt_wo_stopword_en, df_count_word_en,sent_len_en, sent_wo_sw_len_en, sent_lem_len_en  = preprocess_txt (txt_en,'en')
-        display_preprocess_results('en',txt_en, txt_split_en, txt_lem_en, txt_wo_stopword_en, df_count_word_en)
+        if max_lines>10000:
+            with st.status(":sunglasses:", expanded=True):
+                # txt_en, corpus_en, txt_split_en, txt_lem_en, txt_wo_stopword_en, df_count_word_en,sent_len_en, sent_wo_sw_len_en, sent_lem_len_en  = preprocess_txt (txt_en,'en')
+                display_preprocess_results('en',txt_en, txt_split_en, txt_lem_en, txt_wo_stopword_en, df_count_word_en)
+        else:
+            # txt_en, corpus_en, txt_split_en, txt_lem_en, txt_wo_stopword_en, df_count_word_en,sent_len_en, sent_wo_sw_len_en, sent_lem_len_en  = preprocess_txt (txt_en,'en')
+            display_preprocess_results('en',txt_en, txt_split_en, txt_lem_en, txt_wo_stopword_en, df_count_word_en)
     else:
         st.write("## **Préprocessing de small_vocab_fr :**\n")
-        # txt_fr, corpus_fr, txt_split_fr, txt_lem_fr, txt_wo_stopword_fr, df_count_word_fr,sent_len_fr, sent_wo_sw_len_fr, sent_lem_len_fr  = preprocess_txt (txt_fr,'fr')
-        display_preprocess_results('fr', txt_fr, txt_split_fr, txt_lem_fr, txt_wo_stopword_fr, df_count_word_fr)
-
+        if max_lines>10000:
+            with st.status(":sunglasses:", expanded=True):
+                # txt_fr, corpus_fr, txt_split_fr, txt_lem_fr, txt_wo_stopword_fr, df_count_word_fr,sent_len_fr, sent_wo_sw_len_fr, sent_lem_len_fr  = preprocess_txt (txt_fr,'fr')
+                display_preprocess_results('fr', txt_fr, txt_split_fr, txt_lem_fr, txt_wo_stopword_fr, df_count_word_fr)
+        else:
+            # txt_fr, corpus_fr, txt_split_fr, txt_lem_fr, txt_wo_stopword_fr, df_count_word_fr,sent_len_fr, sent_wo_sw_len_fr, sent_lem_len_fr  = preprocess_txt (txt_fr,'fr')
+            display_preprocess_results('fr', txt_fr, txt_split_fr, txt_lem_fr, txt_wo_stopword_fr, df_count_word_fr)
 
 
     # Might be used later....

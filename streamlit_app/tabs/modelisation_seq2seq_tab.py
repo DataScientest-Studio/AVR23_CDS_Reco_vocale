@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import os
 from PIL import Image
+from sacrebleu import corpus_bleu
 from transformers import pipeline
 
 title = "Traduction Sequence à Sequence"
@@ -34,24 +35,29 @@ df_data_en, df_data_fr, translation_en_fr, translation_fr_en, lang_classifier = 
 lang_classifier = pipeline('text-classification',model="papluca/xlm-roberta-base-language-detection")
 
 def display_translation(n1, Lang):
-    global df_data_src, df_data_tgt
-
-    for i in range(n1,n1+5):
-        s = df_data_src.iloc[i][0]
+    global df_data_src, df_data_tgt, placeholder
+    
+    with st.status(":sunglasses:", expanded=True):
+        s = df_data_src.iloc[n1:n1+5][0].tolist()
+        s_trad = []
+        s_trad_ref = df_data_tgt.iloc[n1:n1+5][0].tolist()
         source = Lang[:2]
         target = Lang[-2:]
-        # for col in s.split():
-        #     st.write('col: '+col)
-        #     st.write('dict[col]! '+dict[col])
-        st.write("**"+source+"   :**  "+ s)
-        st.write("**"+target+"   :**  "+translation_model(s, max_length=400)[0]['translation_text'].lower())
-        st.write("**ref. :** "+df_data_tgt.iloc[i][0])
-        st.write("")
+        for i in range(5):
+            s_trad.append(translation_model(s[i], max_length=500)[0]['translation_text'].lower())
+            st.write("**"+source+"   :**  "+ s[i])
+            st.write("**"+target+"   :**  "+s_trad[-1])
+            st.write("**ref. :** "+s_trad_ref[i])
+            st.write("")
+    with placeholder:
+        st.write("<p style='text-align:center;background-color:red; color:white')>Score Bleu = "+str(int(round(corpus_bleu(s_trad,[s_trad_ref]).score,0)))+"%</p>", \
+            unsafe_allow_html=True)
+
 
 
 def run():
 
-    global n1, df_data_src, df_data_tgt, translation_model
+    global n1, df_data_src, df_data_tgt, translation_model, placeholder
     global df_data_en, df_data_fr, lang_classifier, translation_en_fr, translation_fr_en
 
     st.title(title)
@@ -60,9 +66,9 @@ def run():
 
     st.markdown(
         """
-        Enfin, nous avons réalisé une traduction **Seq2Seq** ("Sequence-to-Sequence") avec des réseaux neuronnaux.  
+        Enfin, nous avons réalisé une traduction :red[**Seq2Seq**] ("Sequence-to-Sequence") avec des :red[**réseaux neuronnaux**].  
         La traduction Seq2Seq est une méthode d'apprentissage automatique qui permet de traduire des séquences de texte d'une langue à une autre en utilisant 
-        un encodeur pour capturer le sens du texte source, un décodeur pour générer la traduction, et un vecteur de contexte pour relier les deux parties du modèle.
+        un :red[**encodeur**] pour capturer le sens du texte source, un :red[**décodeur**] pour générer la traduction, et un :red[**vecteur de contexte**] pour relier les deux parties du modèle.
         """
     )
     #
@@ -87,9 +93,10 @@ def run():
             df_data_tgt = df_data_en
             translation_model = translation_fr_en
 
-    
+        
         sentence1 = st.selectbox("Selectionnez la 1ere des 5 phrases à traduire avec le dictionnaire sélectionné", df_data_src.iloc[:-4],index=int(n1) )
         n1 = df_data_src[df_data_src[0]==sentence1].index.values[0]
+        placeholder = st.empty()
         display_translation(n1, Lang)
     else:
         custom_sentence = st.text_area(label="Saisir le texte à traduire")

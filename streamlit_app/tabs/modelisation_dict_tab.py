@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import os
+from sacrebleu import corpus_bleu
 from sklearn.cluster import KMeans
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
@@ -43,6 +44,17 @@ df_count_word_fr = df_count_word_fr[df_count_word_fr==0].fillna(1)
 if ('new' in df_count_word_en.columns):
     df_count_word_en['new']=df_count_word_en['new']*2
     df_count_word_fr['new']=df_count_word_fr['new']*2
+
+def accuracy(dict_ref,dict):
+    correct_words = 0
+    
+    for t in dict.columns:
+        if t in dict_ref.columns:
+            if str(dict[t]) == str(dict_ref[t]): 
+                correct_words +=1
+        else: print("dict ref: manque:",t)
+    print(correct_words," mots corrects / ",min(dict.shape[1],dict_ref.shape[1]))
+    return correct_words/min(dict.shape[1],dict_ref.shape[1])
 
 # ============
 
@@ -139,20 +151,26 @@ def calcul_dic(Lang,Algo,Metrique):
 # ============
 
 def display_translation(n1,dict, Lang):
-    global df_data_src, df_data_tgt
+    global df_data_src, df_data_tgt, placeholder
 
-    for i in range(n1,n1+5):
-        s = df_data_src.iloc[i][0]
-        source = Lang[:2]
-        target = Lang[-2:]
+    s = df_data_src.iloc[n1:n1+5][0].tolist()
+    s_trad = []
+    s_trad_ref = df_data_tgt.iloc[n1:n1+5][0].tolist()
+    source = Lang[:2]
+    target = Lang[-2:]
+    for i in range(5):
         # for col in s.split():
         #     st.write('col: '+col)
         #     st.write('dict[col]! '+dict[col])
-        st.write("**"+source+"   :**  "+ s)
-        st.write("**"+target+"   :**  "+(' '.join(dict[col].iloc[0] for col in s.split())))
-        st.write("**ref. :** "+df_data_tgt.iloc[i][0])
+        s_trad.append((' '.join(dict[col].iloc[0] for col in s[i].split())))
+        st.write("**"+source+"   :**  "+ s[i])
+        st.write("**"+target+"   :**  "+s_trad[-1])
+        st.write("**ref. :** "+s_trad_ref[i])
         st.write("")
-
+    with placeholder:
+        st.write("<p style='text-align:center;background-color:red; color:white')>Score Bleu = "+str(int(round(corpus_bleu(s_trad,[s_trad_ref]).score,0)))+"%</p>", \
+                 unsafe_allow_html=True)
+                     
 def display_dic(df_dic):
     st.dataframe(df_dic.T, height=600)
 
@@ -166,7 +184,7 @@ def load_dic(path):
     return pd.read_csv(input_file, encoding="utf-8", index_col=0).T
 
 def run():
-    global df_data_src, df_data_tgt, df_count_word_src, df_count_word_tgt, nb_mots_src, nb_mots_tgt, n1
+    global df_data_src, df_data_tgt, df_count_word_src, df_count_word_tgt, nb_mots_src, nb_mots_tgt, n1, placeholder
     global df_data_en, df_data_fr, nb_mots_en, df_count_word_en, df_count_word_fr, nb_mots_en, nb_mots_fr
 
     st.title(title)
@@ -177,15 +195,19 @@ def run():
         """
         Dans une première approche naïve, nous avons implémenté un système de traduction mot à mot.  
         Cette traduction est réalisée grâce à un dictionnaire qui associe un mot de la langue source à un mot de la langue cible, dans small_vocab  
-        Ce dictionnaire  est réalisé de 3 manières:  
-        * **Manuellement** en choisissant pour chaque mot source le mot cible. Ceci nous a permis de définir un dictionnaire de référence
-        * Avec le **Bag Of World** (chaque mot dans la langue cible = une classe, BOW = features)  
+        Ce dictionnaire est calculé de 3 manières:  
+        * :red[**Manuellement**] en choisissant pour chaque mot source le mot cible. Ceci nous a permis de définir un dictionnaire de référence
+        * Avec le :red[**Bag Of World**] (chaque mot dans la langue cible = une classe, BOW = features)  
         """)
     st.image("assets/BOW.jpg",use_column_width=True)
     st.markdown(
         """
-        * Avec le **Word Embedding**, c'est à dire en associant chaque mot à un vecteur "sémantique" de dimensions=300, et en selectionnant le vecteur de langue cible 
-        le plus proche du vecteur de langue source
+        * Avec le :red[**Word Embedding**], c'est à dire en associant chaque mot à un vecteur "sémantique" de dimensions=300, et en selectionnant le vecteur de langue cible 
+        le plus proche du vecteur de langue source.  
+
+        Enfin nous calculons:  
+        * la :red[**précision**] du dictionnaire par rapport à notre dictionnaire de réference (manuel)
+        * le :red[**score BLEU**] ("BiLingual Evaluation Understudy"), qui mesure la précision de notre traduction par rapport à celle de notre corpus référence.  
         """
     )
     #
@@ -232,11 +254,15 @@ def run():
         save_dic(dic_name, df_dic)
     """
     df_dic = calcul_dic(Lang,Algo,Metrique)
+    df_dic_ref = calcul_dic(Lang,'Manuel',Metrique)
     st.write("## **Dictionnaire calculé et traduction mot à mot :**\n")
     col1, col2 = st.columns([0.25, 0.75])
     with col1:
         st.write("#### **Dictionnaire**")
+        precision = int(round(accuracy(df_dic_ref,df_dic)*100, 0))
+        st.write("<p style='text-align:center;background-color:red; color:white')>Précision = {:2d}%</p>".format(precision), unsafe_allow_html=True)
         display_dic(df_dic)
     with col2:
         st.write("#### **Traduction**")
+        placeholder = st.empty()
         display_translation(n1, df_dic, Lang)   

@@ -11,7 +11,7 @@ TITLE = "Système de traduction adapté aux lunettes connectées"
 
 TEAM_MEMBERS = [
     Member(
-        name="Keyne Dupont",
+        name="Keyne Dupont&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;",
         linkedin_url="https://www.linkedin.com/in/keyne-dupont/",
         github_url="https://github.com/charlessutton",
     ),
