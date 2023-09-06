@@ -22,3 +22,6 @@ networkx==2.7.0
 transformers
 tensorflow
 sentencepiece
+openai-whisper
+sounddevice==0.4.6
+xformers

@@ -5,6 +5,8 @@ import os
 from PIL import Image
 from sacrebleu import corpus_bleu
 from transformers import pipeline
+import whisper
+import sounddevice as sd
 
 title = "Traduction Sequence à Sequence"
 sidebar_name = "Traduction Seq2Seq"
@@ -28,10 +30,11 @@ def load_all_data():
     lang_classifier = pipeline('text-classification',model="papluca/xlm-roberta-base-language-detection")
     translation_en_fr = pipeline('translation_en_to_fr', model="t5-base") #, model="Helsinki-NLP/opus-mt-en-fr"
     translation_fr_en = pipeline('translation_fr_to_en', model="Helsinki-NLP/opus-mt-fr-en") #, model="t5-base"
-    return df_data_en, df_data_fr, translation_en_fr, translation_fr_en, lang_classifier
+    model_speech = whisper.load_model("base")
+    return df_data_en, df_data_fr, translation_en_fr, translation_fr_en, lang_classifier, model_speech
 
 n1 = 0
-df_data_en, df_data_fr, translation_en_fr, translation_fr_en, lang_classifier = load_all_data() 
+df_data_en, df_data_fr, translation_en_fr, translation_fr_en, lang_classifier, model_speech = load_all_data() 
 lang_classifier = pipeline('text-classification',model="papluca/xlm-roberta-base-language-detection")
 
 def display_translation(n1, Lang):
@@ -53,11 +56,9 @@ def display_translation(n1, Lang):
         st.write("<p style='text-align:center;background-color:red; color:white')>Score Bleu = "+str(int(round(corpus_bleu(s_trad,[s_trad_ref]).score,0)))+"%</p>", \
             unsafe_allow_html=True)
 
-
-
 def run():
 
-    global n1, df_data_src, df_data_tgt, translation_model, placeholder
+    global n1, df_data_src, df_data_tgt, translation_model, placeholder, model_speech
     global df_data_en, df_data_fr, lang_classifier, translation_en_fr, translation_fr_en
 
     st.title(title)
@@ -78,9 +79,9 @@ def run():
 
     st.write("## **Paramètres :**\n")
     
-    on = st.toggle("Traduction d'une phrase à saisir")
+    choice = st.radio("Choisissez le type de traduction:",["small vocab","Phrases à saisir","Phrases à dicter"], horizontal=True)
 
-    if not on:
+    if choice == "small vocab":
         Sens = st.radio('Sens :',('Anglais -> Français','Français -> Anglais'), horizontal=True)
         Lang = ('en_fr' if Sens=='Anglais -> Français' else 'fr_en')
 
@@ -93,59 +94,51 @@ def run():
             df_data_tgt = df_data_en
             translation_model = translation_fr_en
 
-        
         sentence1 = st.selectbox("Selectionnez la 1ere des 5 phrases à traduire avec le dictionnaire sélectionné", df_data_src.iloc[:-4],index=int(n1) )
         n1 = df_data_src[df_data_src[0]==sentence1].index.values[0]
         placeholder = st.empty()
         display_translation(n1, Lang)
-    else:
+    elif choice == "Phrases à saisir":
+
         custom_sentence = st.text_area(label="Saisir le texte à traduire")
         st.button(label="Valider", type="primary")
         if custom_sentence!="":
             Lang_detected = lang_classifier (custom_sentence)[0]['label']
-        else: Lang_detected=""
-        if Lang_detected!="":
             st.write('Langue détectée : **'+lang.get(Lang_detected)+'**')
+        else: Lang_detected=""
+         
         if (Lang_detected=='en'):
             st.write("**fr :**  "+translation_en_fr(custom_sentence, max_length=400)[0]['translation_text'])
         elif (Lang_detected=='fr'):
             st.write("**en  :**  "+translation_fr_en(custom_sentence, max_length=400)[0]['translation_text'])
+    elif choice == "Phrases à dicter":
+            st.write("Chaque phrase dure 10 secondes maximum")
+            st.write("Démarrage de la reconnaissance vocale en temps réel...")
+            duration = 10 #seconds
+            sampling_rate = 16000
+            while True:
+                try:
+                    audio_input = sd.rec(frames=int(sampling_rate * duration), samplerate=sampling_rate, channels=1)
+                    sd.wait()
+                    audio_input = audio_input.reshape(sampling_rate * duration,)
+                    result = model_speech.transcribe(audio_input)
+                    Lang_detected = result["language"]
+                    if (Lang_detected=='en'):
+                        st.write("**en :**  :blue["+result["text"]+"]")
+                        st.write("**fr :**  "+translation_en_fr(result["text"], max_length=400)[0]['translation_text'])
+                        st.write("")
+                    elif (Lang_detected=='fr'):
+                        st.write("**fr :**  :blue["+result["text"]+"]")
+                        st.write("**en  :**  "+translation_fr_en(result["text"], max_length=400)[0]['translation_text'])
+                        st.write("")
+                    else:
+                        st.write("**Langue détectée :**  "+lang.get(Lang_detected))
+                        st.write("**"+Lang_detected+"  :**  :blue["+result["text"]+"]")
+                        st.write("")
+                    st.write("Pret pour la phase suivante..")
+                except KeyboardInterrupt:
+                    st.write("Arrêt de la reconnaissance vocale en temps réel.")
+                    break
 
 
 
-
-    """
-from transformers import T5ForConditionalGeneration, T5Tokenizer
-
-# Load the model and tokenizer
-model = T5ForConditionalGeneration.from_pretrained('t5-base')
-tokenizer = T5Tokenizer.from_pretrained('t5-base')
-
-# Prepare the text
-text = "translate English to French: The quick brown fox jumps over the lazy dog"
-
-# Tokenize the input
-inputs = tokenizer.encode(text, return_tensors='pt')
-
-# Generate translation
-outputs = model.generate(inputs, max_length=40, num_beams=4, early_stopping=True)
-
-# Decode the output
-translated_text = tokenizer.decode(outputs[0])
-
-print(translated_text)
-"""
-"""
-from transformers import AutoTokenizer, AutoModelWithLMHead, TranslationPipeline
-
-pipeline = TranslationPipeline(
-model=AutoModelWithLMHead.from_pretrained("SEBIS/legal_t5_small_trans_fr_en"),
-tokenizer=AutoTokenizer.from_pretrained(pretrained_model_name_or_path = "SEBIS/legal_t5_small_trans_fr_en", do_lower_case=False, 
-                                            skip_special_tokens=True),
-    device=0
-)
-
-fr_text = "quels montants ont été attribués et quelles sommes ont été effectivement utilisées dans chaque État membre? 4."
-
-pipeline([fr_text], max_length=512)
-"""
