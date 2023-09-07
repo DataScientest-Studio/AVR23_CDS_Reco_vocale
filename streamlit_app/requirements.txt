@@ -25,3 +25,4 @@ sentencepiece
 openai-whisper
 sounddevice==0.4.6
 xformers
+translate

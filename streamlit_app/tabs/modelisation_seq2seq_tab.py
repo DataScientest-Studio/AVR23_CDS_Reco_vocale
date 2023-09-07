@@ -7,6 +7,7 @@ from sacrebleu import corpus_bleu
 from transformers import pipeline
 import whisper
 import sounddevice as sd
+from translate import Translator
 
 title = "Traduction Sequence à Sequence"
 sidebar_name = "Traduction Seq2Seq"
@@ -101,16 +102,26 @@ def run():
     elif choice == "Phrases à saisir":
 
         custom_sentence = st.text_area(label="Saisir le texte à traduire")
+        l_tgt = st.selectbox("Choisir la langue destination pour Google Translate (uniquement):",['en','fr','af','am','ar','arn','as','az','ba','be','bg','bn','bo','br','bs','ca','co','cs','cy','da','de','dsb','dv','el','en','es','et','eu','fa','fi','fil','fo','fr','fy','ga','gd','gl','gsw','gu','ha','he','hi','hr','hsb','hu','hy','id','ig','ii','is','it','iu','ja','ka','kk','kl','km','kn','ko','kok','ckb','ky','lb','lo','lt','lv','mi','mk','ml','mn','moh','mr','ms','mt','my','nb','ne','nl','nn','no','st','oc','or','pa','pl','prs','ps','pt','quc','qu','rm','ro','ru','rw','sa','sah','se','si','sk','sl','sma','smj','smn','sms','sq','sr','sv','sw','syc','ta','te','tg','th','tk','tn','tr','tt','tzm','ug','uk','ur','uz','vi','wo','xh','yo','zh','zu'] )
         st.button(label="Valider", type="primary")
         if custom_sentence!="":
             Lang_detected = lang_classifier (custom_sentence)[0]['label']
             st.write('Langue détectée : **'+lang.get(Lang_detected)+'**')
+            st.write("")
         else: Lang_detected=""
-         
-        if (Lang_detected=='en'):
-            st.write("**fr :**  "+translation_en_fr(custom_sentence, max_length=400)[0]['translation_text'])
-        elif (Lang_detected=='fr'):
-            st.write("**en  :**  "+translation_fr_en(custom_sentence, max_length=400)[0]['translation_text'])
+        col1, col2 = st.columns(2, gap="small") 
+        with col1:
+            st.write(":red[**Trad. t5-base & Helsinki**] *(Anglais/Français)*")
+            if (Lang_detected=='en'):
+                st.write("**fr :**  "+translation_en_fr(custom_sentence, max_length=400)[0]['translation_text'])
+            elif (Lang_detected=='fr'):
+                st.write("**en  :**  "+translation_fr_en(custom_sentence, max_length=400)[0]['translation_text'])
+        with col2:
+            st.write(":red[**Trad. Google Translate**]")
+            translator = Translator(to_lang=l_tgt, from_lang=Lang_detected)
+            if custom_sentence!="":
+                st.write("**"+l_tgt+" :**  "+translator.translate(custom_sentence))
+
     elif choice == "Phrases à dicter":
             st.write("Chaque phrase dure 10 secondes maximum")
             st.write("Démarrage de la reconnaissance vocale en temps réel...")
@@ -139,6 +150,5 @@ def run():
                 except KeyboardInterrupt:
                     st.write("Arrêt de la reconnaissance vocale en temps réel.")
                     break
-
 
 
