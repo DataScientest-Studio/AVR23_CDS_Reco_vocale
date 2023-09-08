@@ -26,3 +26,7 @@ openai-whisper
 sounddevice==0.4.6
 xformers
 translate
+speechrecognition
+audio_recorder_streamlit
+pyaudio
+wave

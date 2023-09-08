@@ -2,12 +2,13 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import os
-from PIL import Image
 from sacrebleu import corpus_bleu
 from transformers import pipeline
-import whisper
-import sounddevice as sd
 from translate import Translator
+from audio_recorder_streamlit import audio_recorder
+import speech_recognition as sr
+import whisper
+
 
 title = "Traduction Sequence à Sequence"
 sidebar_name = "Traduction Seq2Seq"
@@ -15,7 +16,7 @@ sidebar_name = "Traduction Seq2Seq"
 # !pip install transformers
 # !pip install sentencepiece
 
-@st.cache_data(ttl='1h00s')
+@st.cache_data
 def load_corpus(path):
     input_file = os.path.join(path)
     with open(input_file, "r",  encoding="utf-8") as f:
@@ -24,14 +25,14 @@ def load_corpus(path):
         data=data[:-1]
     return pd.DataFrame(data)
 
-@st.cache_resource(ttl='1h00s')
+@st.cache_resource
 def load_all_data():
     df_data_en = load_corpus('../data/preprocess_txt_en')
     df_data_fr = load_corpus('../data/preprocess_txt_fr')
     lang_classifier = pipeline('text-classification',model="papluca/xlm-roberta-base-language-detection")
-    translation_en_fr = pipeline('translation_en_to_fr', model="t5-base") #, model="Helsinki-NLP/opus-mt-en-fr"
-    translation_fr_en = pipeline('translation_fr_to_en', model="Helsinki-NLP/opus-mt-fr-en") #, model="t5-base"
-    model_speech = whisper.load_model("base")
+    translation_en_fr = pipeline('translation_en_to_fr', model="t5-base") 
+    translation_fr_en = pipeline('translation_fr_to_en', model="Helsinki-NLP/opus-mt-fr-en")
+    model_speech = whisper.load_model("base") 
     return df_data_en, df_data_fr, translation_en_fr, translation_fr_en, lang_classifier, model_speech
 
 n1 = 0
@@ -80,7 +81,7 @@ def run():
 
     st.write("## **Paramètres :**\n")
     
-    choice = st.radio("Choisissez le type de traduction:",["small vocab","Phrases à saisir","Phrases à dicter"], horizontal=True)
+    choice = st.radio("Choisissez le type de traduction:",["small vocab","Phrases à saisir", "Phrases à dicter"], horizontal=True)
 
     if choice == "small vocab":
         Sens = st.radio('Sens :',('Anglais -> Français','Français -> Anglais'), horizontal=True)
@@ -102,7 +103,7 @@ def run():
     elif choice == "Phrases à saisir":
 
         custom_sentence = st.text_area(label="Saisir le texte à traduire")
-        l_tgt = st.selectbox("Choisir la langue destination pour Google Translate (uniquement):",['en','fr','af','am','ar','arn','as','az','ba','be','bg','bn','bo','br','bs','ca','co','cs','cy','da','de','dsb','dv','el','en','es','et','eu','fa','fi','fil','fo','fr','fy','ga','gd','gl','gsw','gu','ha','he','hi','hr','hsb','hu','hy','id','ig','ii','is','it','iu','ja','ka','kk','kl','km','kn','ko','kok','ckb','ky','lb','lo','lt','lv','mi','mk','ml','mn','moh','mr','ms','mt','my','nb','ne','nl','nn','no','st','oc','or','pa','pl','prs','ps','pt','quc','qu','rm','ro','ru','rw','sa','sah','se','si','sk','sl','sma','smj','smn','sms','sq','sr','sv','sw','syc','ta','te','tg','th','tk','tn','tr','tt','tzm','ug','uk','ur','uz','vi','wo','xh','yo','zh','zu'] )
+        l_tgt = st.selectbox("Choisir la langue cible pour Google Translate (uniquement):",['en','fr','af','am','ar','arn','as','az','ba','be','bg','bn','bo','br','bs','ca','co','cs','cy','da','de','dsb','dv','el','en','es','et','eu','fa','fi','fil','fo','fr','fy','ga','gd','gl','gsw','gu','ha','he','hi','hr','hsb','hu','hy','id','ig','ii','is','it','iu','ja','ka','kk','kl','km','kn','ko','kok','ckb','ky','lb','lo','lt','lv','mi','mk','ml','mn','moh','mr','ms','mt','my','nb','ne','nl','nn','no','st','oc','or','pa','pl','prs','ps','pt','quc','qu','rm','ro','ru','rw','sa','sah','se','si','sk','sl','sma','smj','smn','sms','sq','sr','sv','sw','syc','ta','te','tg','th','tk','tn','tr','tt','tzm','ug','uk','ur','uz','vi','wo','xh','yo','zh','zu'] )
         st.button(label="Valider", type="primary")
         if custom_sentence!="":
             Lang_detected = lang_classifier (custom_sentence)[0]['label']
@@ -123,32 +124,35 @@ def run():
                 st.write("**"+l_tgt+" :**  "+translator.translate(custom_sentence))
 
     elif choice == "Phrases à dicter":
-            st.write("Chaque phrase dure 10 secondes maximum")
-            st.write("Démarrage de la reconnaissance vocale en temps réel...")
-            duration = 10 #seconds
-            sampling_rate = 16000
-            while True:
-                try:
-                    audio_input = sd.rec(frames=int(sampling_rate * duration), samplerate=sampling_rate, channels=1)
-                    sd.wait()
-                    audio_input = audio_input.reshape(sampling_rate * duration,)
-                    result = model_speech.transcribe(audio_input)
-                    Lang_detected = result["language"]
-                    if (Lang_detected=='en'):
-                        st.write("**en :**  :blue["+result["text"]+"]")
-                        st.write("**fr :**  "+translation_en_fr(result["text"], max_length=400)[0]['translation_text'])
-                        st.write("")
-                    elif (Lang_detected=='fr'):
-                        st.write("**fr :**  :blue["+result["text"]+"]")
-                        st.write("**en  :**  "+translation_fr_en(result["text"], max_length=400)[0]['translation_text'])
-                        st.write("")
-                    else:
-                        st.write("**Langue détectée :**  "+lang.get(Lang_detected))
-                        st.write("**"+Lang_detected+"  :**  :blue["+result["text"]+"]")
-                        st.write("")
-                    st.write("Pret pour la phase suivante..")
-                except KeyboardInterrupt:
-                    st.write("Arrêt de la reconnaissance vocale en temps réel.")
-                    break
+        l_src = st.selectbox("Choisir la langue parlée :",['fr','en','es','de','it','nl'])
+        l_tgt = st.selectbox("Choisir la langue cible  :",['en','fr','af','am','ar','arn','as','az','ba','be','bg','bn','bo','br','bs','ca','co','cs','cy','da','de','dsb','dv','el','en','es','et','eu','fa','fi','fil','fo','fr','fy','ga','gd','gl','gsw','gu','ha','he','hi','hr','hsb','hu','hy','id','ig','ii','is','it','iu','ja','ka','kk','kl','km','kn','ko','kok','ckb','ky','lb','lo','lt','lv','mi','mk','ml','mn','moh','mr','ms','mt','my','nb','ne','nl','nn','no','st','oc','or','pa','pl','prs','ps','pt','quc','qu','rm','ro','ru','rw','sa','sah','se','si','sk','sl','sma','smj','smn','sms','sq','sr','sv','sw','syc','ta','te','tg','th','tk','tn','tr','tt','tzm','ug','uk','ur','uz','vi','wo','xh','yo','zh','zu'] )
+        audio_bytes = audio_recorder (pause_threshold=1.0,  sample_rate=16000, text="Cliquez pour parler, puis attendre 2s..", \
+                                      recording_color="#e8b62c", neutral_color="#1ec3bc", icon_size="6x",)
+    
+        if audio_bytes:
+            st.audio(audio_bytes, format="audio/wav")
+            try:
+                audio_stream = sr.AudioData(audio_bytes, 32000, 2) 
+                r = sr.Recognizer()
+                # detected_language = r.recognize_google(audio_stream, show_all=True)
+                # Lang_detected = detected_language['language']
+                Lang_detected = l_src
+                custom_sentence = r.recognize_google(audio_stream, language = Lang_detected)
+                if custom_sentence!="":
+                    # Lang_detected = lang_classifier (custom_sentence)[0]['label']
+                    #st.write('Langue détectée : **'+Lang_detected+'**')
+                    st.write("")
+                    st.write("**"+Lang_detected+" :**  :blue["+custom_sentence+"]")
+                    st.write("")
+                    translator = Translator(to_lang=l_tgt, from_lang=Lang_detected)
+                    st.write("**"+l_tgt+" :**  "+translator.translate(custom_sentence))
+                    st.write("")
+                    st.write("Prêt pour la phase suivante..")
+                    audio_bytes = False
+            except KeyboardInterrupt:
+                st.write("Arrêt de la reconnaissance vocale.")
+            except:
+                st.write("Problème, essayer de nouveau..")
+
 
 
