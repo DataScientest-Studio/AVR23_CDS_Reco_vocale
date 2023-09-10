@@ -4,16 +4,23 @@ from collections import OrderedDict
 # Define TITLE, TEAM_MEMBERS and PROMOTION values, in config.py.
 import config
 
-st.set_page_config(
+# Initialize a session state variable that tracks the sidebar state (either 'expanded' or 'collapsed').
+if 'sidebar_state' not in st.session_state:
+    st.session_state.sidebar_state = 'expanded'
+else:
+    st.session_state.sidebar_state = 'auto'
+
+
+st.set_page_config (
     page_title=config.TITLE,
-    page_icon= "assets/faviconV2.png"
+    page_icon= "assets/faviconV2.png",
+    initial_sidebar_state=st.session_state.sidebar_state
 )
 
 # Define the root folders depending on local/cloud run
 thisfile = os.path.abspath(__file__)
 if ('/' in thisfile): 
     os.chdir(os.path.dirname(thisfile))
-
 
 
 # Tabs in the ./tabs folder, imported here.
@@ -53,6 +60,7 @@ def run():
     st.sidebar.markdown("### Team members:")
     for member in config.TEAM_MEMBERS:
         st.sidebar.markdown(member.sidebar_markdown(), unsafe_allow_html=True)
+
     tab = TABS[tab_name]
     tab.run()
 
