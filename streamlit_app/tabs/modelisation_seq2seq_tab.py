@@ -8,6 +8,9 @@ from translate import Translator
 from audio_recorder_streamlit import audio_recorder
 import speech_recognition as sr
 import whisper
+import io
+import wave
+import wavio
 
 
 title = "Traduction Sequence à Sequence"
@@ -124,20 +127,44 @@ def run():
                 st.write("**"+l_tgt+" :**  "+translator.translate(custom_sentence))
 
     elif choice == "Phrases à dicter":
-        l_src = st.selectbox("Choisir la langue parlée :",['fr','en','es','de','it','nl'])
-        l_tgt = st.selectbox("Choisir la langue cible  :",['en','fr','af','am','ar','arn','as','az','ba','be','bg','bn','bo','br','bs','ca','co','cs','cy','da','de','dsb','dv','el','en','es','et','eu','fa','fi','fil','fo','fr','fy','ga','gd','gl','gsw','gu','ha','he','hi','hr','hsb','hu','hy','id','ig','ii','is','it','iu','ja','ka','kk','kl','km','kn','ko','kok','ckb','ky','lb','lo','lt','lv','mi','mk','ml','mn','moh','mr','ms','mt','my','nb','ne','nl','nn','no','st','oc','or','pa','pl','prs','ps','pt','quc','qu','rm','ro','ru','rw','sa','sah','se','si','sk','sl','sma','smj','smn','sms','sq','sr','sv','sw','syc','ta','te','tg','th','tk','tn','tr','tt','tzm','ug','uk','ur','uz','vi','wo','xh','yo','zh','zu'] )
+        detection = st.toggle("Détection de langue ?")
+        if not detection:
+            l_src = st.selectbox("Choisissez la langue parlée :",['fr','en','es','de','it','nl'])
+        l_tgt = st.selectbox("Choisissez la langue cible  :",['en','fr','af','am','ar','arn','as','az','ba','be','bg','bn','bo','br','bs','ca','co','cs','cy','da','de','dsb','dv','el','en','es','et','eu','fa','fi','fil','fo','fr','fy','ga','gd','gl','gsw','gu','ha','he','hi','hr','hsb','hu','hy','id','ig','ii','is','it','iu','ja','ka','kk','kl','km','kn','ko','kok','ckb','ky','lb','lo','lt','lv','mi','mk','ml','mn','moh','mr','ms','mt','my','nb','ne','nl','nn','no','st','oc','or','pa','pl','prs','ps','pt','quc','qu','rm','ro','ru','rw','sa','sah','se','si','sk','sl','sma','smj','smn','sms','sq','sr','sv','sw','syc','ta','te','tg','th','tk','tn','tr','tt','tzm','ug','uk','ur','uz','vi','wo','xh','yo','zh','zu'] )
         audio_bytes = audio_recorder (pause_threshold=1.0,  sample_rate=16000, text="Cliquez pour parler, puis attendre 2s..", \
                                       recording_color="#e8b62c", neutral_color="#1ec3bc", icon_size="6x",)
     
         if audio_bytes:
             st.audio(audio_bytes, format="audio/wav")
             try:
+                if detection:
+                    # Create a BytesIO object from the audio stream
+                    audio_stream_bytesio = io.BytesIO(audio_bytes)
+
+                    # Read the WAV stream using wavio
+                    wav = wavio.read(audio_stream_bytesio) 
+
+                    # Extract the audio data from the wavio.Wav object
+                    audio_data = wav.data
+
+                    # Convert the audio data to a NumPy array
+                    audio_input = np.array(audio_data, dtype=np.float32)
+                    audio_input = np.mean(audio_input, axis=1)/32768
+            
+                    result = model_speech.transcribe(audio_input)
+                    st.write("Langue détectée : "+result["language"])
+                    Lang_detected = result["language"]
+                else:
+                    Lang_detected = l_src
+
+
+                # Transcription google
                 audio_stream = sr.AudioData(audio_bytes, 32000, 2) 
                 r = sr.Recognizer()
-                # detected_language = r.recognize_google(audio_stream, show_all=True)
-                # Lang_detected = detected_language['language']
-                Lang_detected = l_src
                 custom_sentence = r.recognize_google(audio_stream, language = Lang_detected)
+                # Transcription Whisper (si result a été préalablement calculé)
+                # custom_sentence = result["text"])
+
                 if custom_sentence!="":
                     # Lang_detected = lang_classifier (custom_sentence)[0]['label']
                     #st.write('Langue détectée : **'+Lang_detected+'**')
