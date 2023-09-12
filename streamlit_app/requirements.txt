@@ -31,3 +31,7 @@ audio_recorder_streamlit
 wave
 whisper
 wavio
+filesplit
+regex
+pydot
+graphviz
