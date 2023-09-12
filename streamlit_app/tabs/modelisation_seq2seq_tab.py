@@ -213,9 +213,12 @@ def run():
                 st.write("**en  :**  "+translation_fr_en(custom_sentence, max_length=400)[0]['translation_text'])
         with col2:
             st.write(":red[**Trad. Google Translate**]")
-            translator = Translator(to_lang=l_tgt, from_lang=Lang_detected)
-            if custom_sentence!="":
-                st.write("**"+l_tgt+" :**  "+translator.translate(custom_sentence))
+            try:
+                translator = Translator(to_lang=l_tgt, from_lang=Lang_detected)
+                if custom_sentence!="":
+                    st.write("**"+l_tgt+" :**  "+translator.translate(custom_sentence))
+            except:
+                st.write("Problème, essayer de nouveau..")
 
     with tab3:
         detection = st.toggle("Détection de langue ?")
