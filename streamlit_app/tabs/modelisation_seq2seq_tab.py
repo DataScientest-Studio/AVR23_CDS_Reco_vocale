@@ -59,8 +59,7 @@ def load_all_data():
     return df_data_en, df_data_fr, translation_en_fr, translation_fr_en, lang_classifier, model_speech, rnn_en_fr, rnn_fr_en #, transformer_en_fr, transformer_fr_en
 
 n1 = 0
-df_data_en, df_data_fr, translation_en_fr, translation_fr_en, lang_classifier, model_speech, rnn_en_fr, rnn_fr_en = load_all_data() 
-lang_classifier = pipeline('text-classification',model="papluca/xlm-roberta-base-language-detection")
+df_data_en, df_data_fr, translation_en_fr, translation_fr_en, lang_classifier, model_speech, rnn_en_fr, rnn_fr_en = load_all_data()
 
 # ===== Keras ====
 strip_chars = string.punctuation + "¿"
