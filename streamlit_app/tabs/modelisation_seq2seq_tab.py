@@ -58,7 +58,7 @@ def load_all_data():
     #transformer_fr_en.load_weights("../data/transformer-model-fr-en.weights.h5") 
     return df_data_en, df_data_fr, translation_en_fr, translation_fr_en, lang_classifier, model_speech, rnn_en_fr, rnn_fr_en #, transformer_en_fr, transformer_fr_en
 
-n1 = 0
+n1 = 0 #
 df_data_en, df_data_fr, translation_en_fr, translation_fr_en, lang_classifier, model_speech, rnn_en_fr, rnn_fr_en = load_all_data()
 
 # ===== Keras ====
