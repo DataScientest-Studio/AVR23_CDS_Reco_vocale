@@ -20,6 +20,7 @@ from tensorflow.keras import layers
 # from keras_nlp.layers import TransformerEncoder
 from tensorflow.keras.utils import plot_model
 from PIL import Image
+from gtts import gTTS
 
 
 title = "Traduction Sequence à Sequence"
@@ -58,8 +59,8 @@ def load_all_data():
     #transformer_fr_en.load_weights("../data/transformer-model-fr-en.weights.h5") 
     return df_data_en, df_data_fr, translation_en_fr, translation_fr_en, lang_classifier, model_speech, rnn_en_fr, rnn_fr_en #, transformer_en_fr, transformer_fr_en
 
-n1 = 0 #
-df_data_en, df_data_fr, translation_en_fr, translation_fr_en, lang_classifier, model_speech, rnn_en_fr, rnn_fr_en = load_all_data()
+n1 = 0
+df_data_en, df_data_fr, translation_en_fr, translation_fr_en, lang_classifier, model_speech, rnn_en_fr, rnn_fr_en = load_all_data() 
 
 # ===== Keras ====
 strip_chars = string.punctuation + "¿"
@@ -206,16 +207,33 @@ def run():
         col1, col2 = st.columns(2, gap="small") 
         with col1:
             st.write(":red[**Trad. t5-base & Helsinki**] *(Anglais/Français)*")
+            audio_stream_bytesio_tgt = io.BytesIO()
             if (Lang_detected=='en'):
-                st.write("**fr :**  "+translation_en_fr(custom_sentence, max_length=400)[0]['translation_text'])
+                translation = translation_en_fr(custom_sentence, max_length=400)[0]['translation_text']
+                st.write("**fr :**  "+translation)
+                st.write("")
+                tts = gTTS(translation,lang='fr')
+                tts.write_to_fp(audio_stream_bytesio_tgt)
+                st.audio(audio_stream_bytesio_tgt)
             elif (Lang_detected=='fr'):
-                st.write("**en  :**  "+translation_fr_en(custom_sentence, max_length=400)[0]['translation_text'])
+                translation = translation_fr_en(custom_sentence, max_length=400)[0]['translation_text']
+                st.write("**en  :**  "+translation)
+                st.write("")
+                tts = gTTS(translation,lang='en')
+                tts.write_to_fp(audio_stream_bytesio_tgt)
+                st.audio(audio_stream_bytesio_tgt)
         with col2:
             st.write(":red[**Trad. Google Translate**]")
             try:
                 translator = Translator(to_lang=l_tgt, from_lang=Lang_detected)
                 if custom_sentence!="":
-                    st.write("**"+l_tgt+" :**  "+translator.translate(custom_sentence))
+                    translation = translator.translate(custom_sentence)
+                    st.write("**"+l_tgt+" :**  "+translation)
+                    st.write("")
+                    audio_stream_bytesio_tgt = io.BytesIO()
+                    tts = gTTS(translation,lang=l_tgt)
+                    tts.write_to_fp(audio_stream_bytesio_tgt)
+                    st.audio(audio_stream_bytesio_tgt)
             except:
                 st.write("Problème, essayer de nouveau..")
 
@@ -263,7 +281,13 @@ def run():
                     st.write("**"+Lang_detected+" :**  :blue["+custom_sentence+"]")
                     st.write("")
                     translator = Translator(to_lang=l_tgt, from_lang=Lang_detected)
-                    st.write("**"+l_tgt+" :**  "+translator.translate(custom_sentence))
+                    translation = translator.translate(custom_sentence)
+                    st.write("**"+l_tgt+" :**  "+translation)
+                    st.write("")
+                    audio_stream_bytesio_tgt = io.BytesIO()
+                    tts = gTTS(translation,lang=l_tgt)
+                    tts.write_to_fp(audio_stream_bytesio_tgt)
+                    st.audio(audio_stream_bytesio_tgt)
                     st.write("")
                     st.write("Prêt pour la phase suivante..")
                     audio_bytes = False

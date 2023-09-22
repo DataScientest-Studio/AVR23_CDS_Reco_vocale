@@ -35,3 +35,4 @@ filesplit
 regex
 pydot
 graphviz
+gtts
