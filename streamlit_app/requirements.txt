@@ -36,3 +36,4 @@ regex
 pydot
 graphviz
 gtts
+extra_streamlit_component

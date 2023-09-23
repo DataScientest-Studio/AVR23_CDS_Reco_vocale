@@ -21,6 +21,7 @@ from tensorflow.keras import layers
 from tensorflow.keras.utils import plot_model
 from PIL import Image
 from gtts import gTTS
+from extra_streamlit_components import tab_bar, TabBarItemData
 
 
 title = "Traduction Sequence à Sequence"
@@ -123,6 +124,7 @@ def decode_sequence_rnn(input_sentence, src, tgt):
 def display_translation(n1, Lang):
     global df_data_src, df_data_tgt, placeholder
     
+    placeholder = st.empty()
     with st.status(":sunglasses:", expanded=True):
         s = df_data_src.iloc[n1:n1+5][0].tolist()
         s_trad = []
@@ -162,19 +164,23 @@ def run():
         """
     )
 
-    lang_tgt = ['en','fr','aa','ab','ae','af','ak','am','an','ar','as','av','ay','az','ba','be','bg','bh','bi','bm','bn','bo','br','bs','ca','ce','ch','co','cr','cs','cu','cv','cy','da','de','dv','dz','ee','el','en','eo','es','et','eu','fa','ff','fi','fj','fo','fr','fy','ga','gd','gl','gn','gu','gv','ha','he','hi','ho','hr','ht','hu','hy','hz','ia','id','ie','ig','ii','ik','io','is','it','iu','ja', 'jv', 'ka', 'kg', 'ki', 'kj', 'kk', 'kl', 'km', 'kn', 'ko', 'kr', 'ks', 'ku', 'kv', 'kw', 'ky', 'la', 'lb', 'lg', 'li', 'ln', 'lo', 'lt', 'lu', 'lv', 'mg', 'mh', 'mi', 'mk', 'ml', 'mn', 'mo', 'mr', 'ms', 'mt', 'my', 'na', 'nb', 'nd', 'ne', 'ng', 'nl', 'nn', 'no', 'nr', 'nv', 'ny', 'oc', 'oj', 'om', 'or', 'os', 'pa', 'pi', 'pl', 'ps', 'pt', 'qu', 'rm', 'rn', 'ro', 'ru', 'rw', 'sa', 'sc', 'sd', 'se', 'sg', 'sh', 'si', 'sk', 'sl', 'sm', 'sn', 'so', 'sq', 'sr', 'ss', 'st', 'su', 'sv', 'sw', 'ta', 'te', 'tg', 'th', 'ti', 'tk', 'tl', 'tn', 'to', 'tr', 'ts', 'tt', 'tw', 'ty', 'ug', 'uk', 'ur', 'uz', 've', 'vi', 'vo', 'wa', 'wo', 'xh', 'yi', 'yo', 'za', 'zh', 'zu']
-    label_lang = ['Anglais','Français','Afar','Abkhaze','Avestique', 'Afrikaans','Akan','Amharique', 'Aragonais','Arabe', 'Assamais', 'Avar', 'Aymara', 'Azéri', 'Bachkir', 'Biélorusse', 'Bulgare', 'Bihari', 'Bichelamar', 'Bambara', 'Bengali', 'Tibétain', 'Breton', 'Bosnien', 'Catalan', 'Tchétchène', 'Chamorro', 'Corse', 'Cri', 'Tchèque', 'Vieux-slave', 'Tchouvache', 'Gallois', 'Danois', 'Allemand', 'Maldivien', 'Dzongkha', 'Ewe', 'Grec moderne', 'Anglais', 'Espéranto', 'Espagnol', 'Estonien', 'Basque', 'Persan', 'Peul', 'Finnois', 'Fidjien', 'Féroïen', 'Français', 'Frison occidental', 'Irlandais', 'Écossais', 'Galicien', 'Guarani', 'Gujarati', 'Mannois', 'Haoussa', 'Hébreu', 'Hindi', 'Hiri motu', 'Croate', 'Créole haïtien', 'Hongrois', 'Arménien', 'Héréro', 'Interlingua', 'Indonésien', 'Occidental', 'Igbo', 'Yi', 'Inupiak', 'Ido', 'Islandais', 'Italien', 'Inuktitut', 'Japonais', 'Javanais', 'Géorgien', 'Kikongo', 'Kikuyu', 'Kuanyama', 'Kazakh', 'Groenlandais', 'Khmer', 'Kannada', 'Coréen', 'Kanouri', 'Cachemiri', 'Kurde', 'Komi', 'Cornique', 'Kirghiz', 'Latin', 'Luxembourgeois', 'Ganda', 'Limbourgeois', 'Lingala', 'Lao', 'Lituanien', 'Luba', 'Letton', 'Malgache', 'Marshallais', 'Maori de Nouvelle-Zélande', 'Macédonien', 'Malayalam', 'Mongol', 'Moldave', 'Marathi', 'Malais', 'Maltais', 'Birman', 'Nauruan', 'Norvégien bokmål', 'Sindebele', 'Népalais', 'Ndonga', 'Néerlandais', 'Norvégien nynorsk', 'Norvégien', 'Nrebele', 'Navajo', 'Chichewa', 'Occitan', 'Ojibwé', 'Oromo', 'Oriya', 'Ossète', 'Pendjabi', 'Pali', 'Polonais', 'Pachto', 'Portugais', 'Quechua', 'Romanche', 'Kirundi', 'Roumain', 'Russe', 'Kinyarwanda', 'Sanskrit', 'Sarde', 'Sindhi', 'Same du Nord', 'Sango', 'Serbo-croate', 'Cingalais', 'Slovaque', 'Slovène', 'Samoan', 'Shona', 'Somali', 'Albanais', 'Serbe', 'Swati', 'Sotho du Sud', 'Soundanais', 'Suédois', 'Swahili', 'Tamoul', 'Télougou', 'Tadjik', 'Thaï', 'Tigrigna', 'Turkmène', 'Tagalog', 'Tswana', 'Tongien', 'Turc', 'Tsonga', 'Tatar', 'Twi', 'Tahitien', 'Ouïghour', 'Ukrainien', 'Ourdou', 'Ouzbek', 'Venda', 'Vietnamien', 'Volapük', 'Wallon', 'Wolof', 'Xhosa', 'Yiddish', 'Yoruba', 'Zhuang', 'Chinois', 'Zoulou']
-    lang_src = { 'ar': 'arabic', 'bg': 'bulgarian', 'de': 'german', 'el':'modern greek', 'en': 'english', 'es': 'spanish', 'fr': 'french', \
-            'hi': 'hindi', 'it': 'italian', 'ja': 'japanese', 'nl': 'dutch', 'pl': 'polish', 'pt': 'portuguese', 'ru': 'russian', 'sw': 'swahili', \
-            'th': 'thai', 'tr': 'turkish', 'ur': 'urdu', 'vi': 'vietnamese', 'zh': 'chinese'}
+    lang_tgt   = ['en','fr','ab','aa','af','ak','sq','de','am','en','ar','an','hy','as','av','ae','ay','az','ba','bm','eu','bn','bi','be','bh','my','bs','br','bg','ks','ca','ch','ny','zh','si','ko','kw','co','ht','cr','hr','da','dz','gd','es','eo','et','ee','fo','fj','fi','fr','fy','gl','cy','lg','ka','el','kl','gn','gu','ha','he','hz','hi','ho','hu','io','ig','id','ia','iu','ik','ga','is','it','ja','jv','kn','kr','kk','km','kg','ki','rw','ky','rn','kv','kj','ku','lo','la','lv','li','ln','lt','lu','lb','mk','ms','ml','dv','mg','mt','gv','mi','mr','mh','mo','mn','na','nv','ng','nl','ne','no','nb','nn','nr','ie','oc','oj','or','om','os','ug','ur','uz','ps','pi','pa','fa','ff','pl','pt','qu','rm','ro','ru','se','sm','sg','sa','sc','sr','sh','sn','nd','sd','sk','sl','so','st','su','sv','sw','ss','tg','tl','ty','ta','tt','cs','ce','cv','te','th','bo','ti','to','ts','tn','tr','tk','tw','uk','ve','vi','cu','vo','wa','wo','xh','ii','yi','yo','za','zu']
+    label_lang = ['Anglais','Français','Abkhaze','Afar','Afrikaans','Akan','Albanais','Allemand','Amharique','Anglais','Arabe','Aragonais','Arménien','Assamais','Avar','Avestique','Aymara','Azéri','Bachkir','Bambara','Basque','Bengali','Bichelamar','Biélorusse','Bihari','Birman','Bosnien','Breton','Bulgare','Cachemiri','Catalan','Chamorro','Chichewa','Chinois','Cingalais','Coréen','Cornique','Corse','Créolehaïtien','Cri','Croate','Danois','Dzongkha','Écossais','Espagnol','Espéranto','Estonien','Ewe','Féroïen','Fidjien','Finnois','Français','Frisonoccidental','Galicien','Gallois','Ganda','Géorgien','Grecmoderne','Groenlandais','Guarani','Gujarati','Haoussa','Hébreu','Héréro','Hindi','Hirimotu','Hongrois','Ido','Igbo','Indonésien','Interlingua','Inuktitut','Inupiak','Irlandais','Islandais','Italien','Japonais','Javanais','Kannada','Kanouri','Kazakh','Khmer','Kikongo','Kikuyu','Kinyarwanda','Kirghiz','Kirundi','Komi','Kuanyama','Kurde','Lao','Latin','Letton','Limbourgeois','Lingala','Lituanien','Luba','Luxembourgeois','Macédonien','Malais','Malayalam','Maldivien','Malgache','Maltais','Mannois','MaorideNouvelle-Zélande','Marathi','Marshallais','Moldave','Mongol','Nauruan','Navajo','Ndonga','Néerlandais','Népalais','Norvégien','Norvégienbokmål','Norvégiennynorsk','Nrebele','Occidental','Occitan','Ojibwé','Oriya','Oromo','Ossète','Ouïghour','Ourdou','Ouzbek','Pachto','Pali','Pendjabi','Persan','Peul','Polonais','Portugais','Quechua','Romanche','Roumain','Russe','SameduNord','Samoan','Sango','Sanskrit','Sarde','Serbe','Serbo-croate','Shona','Sindebele','Sindhi','Slovaque','Slovène','Somali','SothoduSud','Soundanais','Suédois','Swahili','Swati','Tadjik','Tagalog','Tahitien','Tamoul','Tatar','Tchèque','Tchétchène','Tchouvache','Télougou','Thaï','Tibétain','Tigrigna','Tongien','Tsonga','Tswana','Turc','Turkmène','Twi','Ukrainien','Venda','Vietnamien','Vieux-slave','Volapük','Wallon','Wolof','Xhosa','Yi','Yiddish','Yoruba','Zhuang','Zoulou']
+    lang_src = {'ar': 'arabic', 'bg': 'bulgarian', 'de': 'german', 'el':'modern greek', 'en': 'english', 'es': 'spanish', 'fr': 'french', \
+                'hi': 'hindi', 'it': 'italian', 'ja': 'japanese', 'nl': 'dutch', 'pl': 'polish', 'pt': 'portuguese', 'ru': 'russian', 'sw': 'swahili', \
+                'th': 'thai', 'tr': 'turkish', 'ur': 'urdu', 'vi': 'vietnamese', 'zh': 'chinese'}
     st.write("## **Paramètres :**\n")
     
-    st.write("Choisissez le type de traduction:")
-    tab1, tab2, tab3 = st.tabs(["small vocab avec Keras et un GRU","Phrases à saisir", "Phrases à dicter"])
-
-    with tab1:
-       
-        Sens = st.radio('Sens de la traduction:',('Anglais -> Français','Français -> Anglais'), horizontal=True)
+    st.write("#### Choisissez le type de traduction:")
+    # tab1, tab2, tab3 = st.tabs(["small vocab avec Keras et un GRU","Phrases à saisir", "Phrases à dicter"])
+    chosen_id = tab_bar(data=[
+        TabBarItemData(id="tab1", title="small vocab", description="avec Keras et un GRU"),
+        TabBarItemData(id="tab2", title="Phrase personnelle", description="à saisir"),
+        TabBarItemData(id="tab3", title="Phrase personnelle", description="à dicter")])
+    
+    TabContainerHolder = st.container()
+    if chosen_id == "tab1":   
+        Sens = TabContainerHolder.radio('Sens de la traduction:',('Anglais -> Français','Français -> Anglais'), horizontal=True)
         Lang = ('en_fr' if Sens=='Anglais -> Français' else 'fr_en')
 
         if (Lang=='en_fr'):
@@ -192,9 +198,8 @@ def run():
 
         sentence1 = st.selectbox("Selectionnez la 1ere des 5 phrases à traduire avec le dictionnaire sélectionné", df_data_src.iloc[:-4],index=int(n1) )
         n1 = df_data_src[df_data_src[0]==sentence1].index.values[0]
-        placeholder = st.empty()
         display_translation(n1, Lang)
-    with tab2:
+    elif chosen_id == "tab2":
 
         custom_sentence = st.text_area(label="Saisir le texte à traduire")
         l_tgt = st.selectbox("Choisir la langue cible pour Google Translate (uniquement):",lang_tgt, format_func = find_lang_label )
@@ -202,6 +207,10 @@ def run():
         if custom_sentence!="":
             Lang_detected = lang_classifier (custom_sentence)[0]['label']
             st.write('Langue détectée : **'+lang_src.get(Lang_detected)+'**')
+            audio_stream_bytesio_src = io.BytesIO()
+            tts = gTTS(custom_sentence,lang=Lang_detected)
+            tts.write_to_fp(audio_stream_bytesio_src)
+            st.audio(audio_stream_bytesio_src)
             st.write("")
         else: Lang_detected=""
         col1, col2 = st.columns(2, gap="small") 
@@ -237,7 +246,7 @@ def run():
             except:
                 st.write("Problème, essayer de nouveau..")
 
-    with tab3:
+    elif chosen_id == "tab3":
         detection = st.toggle("Détection de langue ?")
         if not detection:
             l_src = st.selectbox("Choisissez la langue parlée :",lang_tgt, format_func = find_lang_label, index=1 )
@@ -288,7 +297,6 @@ def run():
                     tts = gTTS(translation,lang=l_tgt)
                     tts.write_to_fp(audio_stream_bytesio_tgt)
                     st.audio(audio_stream_bytesio_tgt)
-                    st.write("")
                     st.write("Prêt pour la phase suivante..")
                     audio_bytes = False
             except KeyboardInterrupt:
