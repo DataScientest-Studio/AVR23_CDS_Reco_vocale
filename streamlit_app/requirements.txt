@@ -35,5 +35,5 @@ filesplit
 regex
 pydot
 graphviz
-gtts
-extra_streamlit_component
+gTTS
+https://files.pythonhosted.org/packages/cc/58/96aff0e5cb8b59c06232ea7e249ed902d04ec89f52636f5be06ceb0855fe/extra_streamlit_components-0.1.60-py3-none-any.whl
