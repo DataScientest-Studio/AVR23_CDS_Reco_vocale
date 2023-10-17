@@ -6,6 +6,17 @@ h4 {
   color: #000000;
 }
 */
+
+/* La ligne suivante est nécessaire à cause du module streamlit_option_menu qui "casse" les CSS suivants */
+@media (prefers-color-scheme: dark) {
+    .st-cc {
+        color: #fff!important; /* Couleur du texte en mode sombre */
+	}
+	.st-cg:hover {
+		color: rgb(255, 75, 75)!important; /* Couleur du texte en mode sombre */
+    }
+}
+
 p {
     margin-bottom:0.1rem;
 }
