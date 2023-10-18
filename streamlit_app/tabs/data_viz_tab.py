@@ -338,6 +338,7 @@ def run():
             plot_word_cloud(text,"Mots français du corpus", "../images/coeur.png", stop_words)
             
     with tab2:
+        st.subheader("Frequence d'apparition des mots")
         st.markdown(
             """
             On remarque en changeant de langues, que certains mot fréquents dans une langue,
@@ -345,7 +346,6 @@ def run():
             Cela peut nous laisser penser que la traduction mot à mot sera peut-être bonne.
             """
         )
-        st.subheader("Frequence d'apparition des mots")
         if (Langue == 'Anglais'):
             dist_frequence_mots(df_count_word_en)
         else:
