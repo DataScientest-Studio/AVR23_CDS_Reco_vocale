@@ -319,7 +319,7 @@ def run():
         st.subheader("World Cloud")
         st.markdown(
             """
-            On remarque en changeant de langues, que certains mot de taille importante dans une langue,
+            On remarque, en changeant de langue, que certains mot de taille importante dans une langue,
             apparaissent avec une taille identique dans l'autre langue.
             La traduction mot à mot sera donc peut-être bonne.
             """
@@ -341,7 +341,7 @@ def run():
         st.subheader("Frequence d'apparition des mots")
         st.markdown(
             """
-            On remarque en changeant de langues, que certains mot fréquents dans une langue,
+            On remarque, en changeant de langue, que certains mot fréquents dans une langue,
             apparaissent aussi fréquemment dans l'autre langue.
             Cela peut nous laisser penser que la traduction mot à mot sera peut-être bonne.
             """
