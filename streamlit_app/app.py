@@ -24,8 +24,8 @@ if ('/' in thisfile):
     os.chdir(os.path.dirname(thisfile))
 
 # Tabs in the ./tabs folder, imported here.
-from tabs import intro, exploration_tab, data_viz_tab, id_lang_tab, modelisation_dict_tab, modelisation_seq2seq_tab
-
+from tabs import intro, id_lang_tab
+# bug avec l'onglet exploration_tab, data_viz_tab,  modelisation_dict_tab,  modelisation_seq2seq_tab
 
 with open("style.css", "r") as f:
     style = f.read()
@@ -38,12 +38,13 @@ st.markdown(f"<style>{style}</style>", unsafe_allow_html=True)
 # as value as follow :
 TABS = OrderedDict(
     [
-        (intro.sidebar_name, intro),
-        (exploration_tab.sidebar_name, exploration_tab),
-        (data_viz_tab.sidebar_name, data_viz_tab),
         (id_lang_tab.sidebar_name, id_lang_tab),
-        (modelisation_dict_tab.sidebar_name, modelisation_dict_tab),
-        (modelisation_seq2seq_tab.sidebar_name, modelisation_seq2seq_tab),
+        (intro.sidebar_name, intro),
+        #(exploration_tab.sidebar_name, exploration_tab),
+        #(data_viz_tab.sidebar_name, data_viz_tab),
+        
+        #(modelisation_dict_tab.sidebar_name, modelisation_dict_tab),
+        #(modelisation_seq2seq_tab.sidebar_name, modelisation_seq2seq_tab),
     ]
 )
 
