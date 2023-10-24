@@ -176,10 +176,11 @@ def run():
     chosen_id = tab_bar(data=[
         TabBarItemData(id="tab1", title="small vocab", description="avec Keras et un GRU"),
         TabBarItemData(id="tab2", title="Phrase personnelle", description="à saisir"),
-        TabBarItemData(id="tab3", title="Phrase personnelle", description="à dicter")])
+        TabBarItemData(id="tab3", title="Phrase personnelle", description="à dicter")],
+        default="tab1")
     
-    TabContainerHolder = st.container()
-    if chosen_id == "tab1":   
+    if chosen_id == "tab1":
+        TabContainerHolder = st.container()
         Sens = TabContainerHolder.radio('Sens de la traduction:',('Anglais -> Français','Français -> Anglais'), horizontal=True)
         Lang = ('en_fr' if Sens=='Anglais -> Français' else 'fr_en')
 

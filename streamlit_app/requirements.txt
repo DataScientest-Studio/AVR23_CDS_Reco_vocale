@@ -24,6 +24,7 @@ tensorflow
 sentencepiece
 openai-whisper
 sounddevice==0.4.6
+torch
 xformers
 translate
 speechrecognition
