@@ -27,8 +27,8 @@ To run the **app locally** (be careful with the paths of the files in the app):
 ```shell
 conda create --name avr23-cds-translation python=3.9
 conda activate avr23-cds-translation
-pip install -r requirements.txt
 cd "repertoire où se trouve l'application"
+pip install -r requirements.txt
 streamlit run app.py
 ```
 
