@@ -24,8 +24,8 @@ if ('/' in thisfile):
     os.chdir(os.path.dirname(thisfile))
 
 # Tabs in the ./tabs folder, imported here.
-from tabs import intro, id_lang_tab
-# bug avec l'onglet exploration_tab, data_viz_tab,  modelisation_dict_tab,  modelisation_seq2seq_tab
+from tabs import intro, exploration_tab, data_viz_tab, id_lang_tab, modelisation_dict_tab, modelisation_seq2seq_tab
+
 
 with open("style.css", "r") as f:
     style = f.read()
@@ -38,13 +38,12 @@ st.markdown(f"<style>{style}</style>", unsafe_allow_html=True)
 # as value as follow :
 TABS = OrderedDict(
     [
-        (id_lang_tab.sidebar_name, id_lang_tab),
         (intro.sidebar_name, intro),
-        #(exploration_tab.sidebar_name, exploration_tab),
-        #(data_viz_tab.sidebar_name, data_viz_tab),
-        
-        #(modelisation_dict_tab.sidebar_name, modelisation_dict_tab),
-        #(modelisation_seq2seq_tab.sidebar_name, modelisation_seq2seq_tab),
+        (exploration_tab.sidebar_name, exploration_tab),
+        (data_viz_tab.sidebar_name, data_viz_tab),
+        (id_lang_tab.sidebar_name, id_lang_tab),
+        (modelisation_dict_tab.sidebar_name, modelisation_dict_tab),
+        (modelisation_seq2seq_tab.sidebar_name, modelisation_seq2seq_tab),
     ]
 )
 
@@ -57,7 +56,8 @@ def run():
     )
     with st.sidebar:
         tab_name = option_menu(None, list(TABS.keys()),
-                               icons=['house', 'bi-binoculars', 'bi bi-graph-up', 'bi-chat-right-text','bi-book', 'bi-body-text'], menu_icon="cast", default_index=0,
+                               # icons=['house', 'bi-binoculars', 'bi bi-graph-up', 'bi-chat-right-text','bi-book', 'bi-body-text'], menu_icon="cast", default_index=0,
+                               icons=['house', 'binoculars', 'graph-up', 'search','book', 'chat-right-text'], menu_icon="cast", default_index=0,
                                styles={"container": {"padding": "0!important","background-color": "#10b8dd", "border-radius": "0!important"},
                                        "nav-link": {"font-size": "1rem", "text-align": "left", "margin":"0em", "padding": "0em",
                                                     "padding-left": "0.2em", "--hover-color": "#eee", "font-weight": "400",
