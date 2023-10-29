@@ -26,11 +26,11 @@ You can also run the **Streamlit App directly on the Cloud**:
 
 To run the **app locally** (be careful with the paths of the files in the app):
 ```shell
-conda create --name avr23-cds-translation python=3.9
-conda activate avr23-cds-translation
+conda create --name Avr23-cds-translation python=3.10
+conda activate Avr23-cds-translation
 cd "repertoire où se trouve l'application"
 pip install -r requirements.txt
-# if your operating system is Windows, run the following line:
+# if your operating system is Windows 11, run the following line:
 pip install protobuf==3.20.3 streamlit==1.28.0
 
 streamlit run app.py
