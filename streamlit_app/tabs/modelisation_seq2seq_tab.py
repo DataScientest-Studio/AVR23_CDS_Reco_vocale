@@ -16,8 +16,8 @@ import tensorflow as tf
 import string
 import re
 from tensorflow import keras
+from keras_nlp.layers import TransformerEncoder
 from tensorflow.keras import layers
-# from keras_nlp.layers import TransformerEncoder
 from tensorflow.keras.utils import plot_model
 from PIL import Image
 from gtts import gTTS
@@ -27,9 +27,6 @@ from extra_streamlit_components import tab_bar, TabBarItemData
 title = "Traduction Sequence à Sequence"
 sidebar_name = "Traduction Seq2Seq"
 
-# !pip install transformers
-# !pip install sentencepiece
-
 @st.cache_data
 def load_corpus(path):
     input_file = os.path.join(path)
@@ -38,30 +35,6 @@ def load_corpus(path):
         data = data.split('\n')
         data=data[:-1]
     return pd.DataFrame(data)
-
-@st.cache_resource
-def load_all_data():
-    df_data_en = load_corpus('../data/preprocess_txt_en')
-    df_data_fr = load_corpus('../data/preprocess_txt_fr')
-    lang_classifier = pipeline('text-classification',model="papluca/xlm-roberta-base-language-detection")
-    translation_en_fr = pipeline('translation_en_to_fr', model="t5-base") 
-    translation_fr_en = pipeline('translation_fr_to_en', model="Helsinki-NLP/opus-mt-fr-en")
-    model_speech = whisper.load_model("base") 
-    
-    merge = Merge( "../data/rnn_en-fr_split",  "../data", "seq2seq_rnn-model-en-fr.h5").merge(cleanup=False)
-    merge = Merge( "../data/rnn_fr-en_split",  "../data", "seq2seq_rnn-model-fr-en.h5").merge(cleanup=False)
-    rnn_en_fr = keras.models.load_model("../data/seq2seq_rnn-model-en-fr.h5")
-    rnn_fr_en = keras.models.load_model("../data/seq2seq_rnn-model-fr-en.h5")
-    #transformer_en_fr = keras.models.load_model( "../data/transformer-model-en-fr.h5",
-    #                                      custom_objects={"PositionalEmbedding": PositionalEmbedding, "TransformerDecoder": TransformerDecoder},)
-    #transformer_fr_en = keras.models.load_model( "../data/transformer-model-fr-en.h5",
-    #                                      custom_objects={"PositionalEmbedding": PositionalEmbedding, "TransformerDecoder": TransformerDecoder},)
-    #transformer_en_fr.load_weights("../data/transformer-model-en-fr.weights.h5") 
-    #transformer_fr_en.load_weights("../data/transformer-model-fr-en.weights.h5") 
-    return df_data_en, df_data_fr, translation_en_fr, translation_fr_en, lang_classifier, model_speech, rnn_en_fr, rnn_fr_en #, transformer_en_fr, transformer_fr_en
-
-n1 = 0
-df_data_en, df_data_fr, translation_en_fr, translation_fr_en, lang_classifier, model_speech, rnn_en_fr, rnn_fr_en = load_all_data() 
 
 # ===== Keras ====
 strip_chars = string.punctuation + "¿"
@@ -117,11 +90,177 @@ def decode_sequence_rnn(input_sentence, src, tgt):
             break
     return decoded_sentence[8:-6]
 
-# ==== End Keras ====
+# ===== Enf of Keras ====
+
+# ===== Transformer section ====
+
+class TransformerDecoder(layers.Layer):
+    def __init__(self, embed_dim, dense_dim, num_heads, **kwargs):
+        super().__init__(**kwargs)
+        self.embed_dim = embed_dim
+        self.dense_dim = dense_dim
+        self.num_heads = num_heads
+        self.attention_1 = layers.MultiHeadAttention(
+            num_heads=num_heads, key_dim=embed_dim)
+        self.attention_2 = layers.MultiHeadAttention(
+            num_heads=num_heads, key_dim=embed_dim)
+        self.dense_proj = keras.Sequential(
+            [layers.Dense(dense_dim, activation="relu"),
+             layers.Dense(embed_dim),]
+        )
+        self.layernorm_1 = layers.LayerNormalization()
+        self.layernorm_2 = layers.LayerNormalization()
+        self.layernorm_3 = layers.LayerNormalization()
+        self.supports_masking = True
+
+    def get_config(self):
+        config = super().get_config()
+        config.update({
+            "embed_dim": self.embed_dim,
+            "num_heads": self.num_heads,
+            "dense_dim": self.dense_dim,
+        })
+        return config
+
+    def get_causal_attention_mask(self, inputs):
+        input_shape = tf.shape(inputs)
+        batch_size, sequence_length = input_shape[0], input_shape[1]
+        i = tf.range(sequence_length)[:, tf.newaxis]
+        j = tf.range(sequence_length)
+        mask = tf.cast(i >= j, dtype="int32")
+        mask = tf.reshape(mask, (1, input_shape[1], input_shape[1]))
+        mult = tf.concat(
+            [tf.expand_dims(batch_size, -1),
+             tf.constant([1, 1], dtype=tf.int32)], axis=0)
+        return tf.tile(mask, mult)
+
+    def call(self, inputs, encoder_outputs, mask=None):
+        causal_mask = self.get_causal_attention_mask(inputs)
+        if mask is not None:
+            padding_mask = tf.cast(
+                mask[:, tf.newaxis, :], dtype="int32")
+            padding_mask = tf.minimum(padding_mask, causal_mask)
+        else:
+            padding_mask = mask
+        attention_output_1 = self.attention_1(
+            query=inputs,
+            value=inputs,
+            key=inputs,
+            attention_mask=causal_mask)
+        attention_output_1 = self.layernorm_1(inputs + attention_output_1)
+        attention_output_2 = self.attention_2(
+            query=attention_output_1,
+            value=encoder_outputs,
+            key=encoder_outputs,
+            attention_mask=padding_mask,
+        )
+        attention_output_2 = self.layernorm_2(
+            attention_output_1 + attention_output_2)
+        proj_output = self.dense_proj(attention_output_2)
+        return self.layernorm_3(attention_output_2 + proj_output)
+    
+class PositionalEmbedding(layers.Layer):
+    def __init__(self, sequence_length, input_dim, output_dim, **kwargs):
+        super().__init__(**kwargs)
+        self.token_embeddings = layers.Embedding(
+            input_dim=input_dim, output_dim=output_dim)
+        self.position_embeddings = layers.Embedding(
+            input_dim=sequence_length, output_dim=output_dim)
+        self.sequence_length = sequence_length
+        self.input_dim = input_dim
+        self.output_dim = output_dim
+
+    def call(self, inputs):
+        length = tf.shape(inputs)[-1]
+        positions = tf.range(start=0, limit=length, delta=1)
+        embedded_tokens = self.token_embeddings(inputs)
+        embedded_positions = self.position_embeddings(positions)
+        return embedded_tokens + embedded_positions
+
+    def compute_mask(self, inputs, mask=None):
+        return tf.math.not_equal(inputs, 0)
+
+    def get_config(self):
+        config = super(PositionalEmbedding, self).get_config()
+        config.update({
+            "output_dim": self.output_dim,
+            "sequence_length": self.sequence_length,
+            "input_dim": self.input_dim,
+        })
+        return config
+    
+def decode_sequence_tranf(input_sentence, src, tgt):
+    global translation_model
+
+    vocab_size = 15000
+    sequence_length = 30
+
+    source_vectorization = layers.TextVectorization(
+        max_tokens=vocab_size,
+        output_mode="int",
+        output_sequence_length=sequence_length,
+        standardize=custom_standardization,
+        vocabulary = load_vocab("../data/vocab_"+src+".txt"),
+    )
+
+    target_vectorization = layers.TextVectorization(
+        max_tokens=vocab_size,
+        output_mode="int",
+        output_sequence_length=sequence_length + 1,
+        standardize=custom_standardization,
+        vocabulary = load_vocab("../data/vocab_"+tgt+".txt"),
+    )
+
+    tgt_vocab = target_vectorization.get_vocabulary()
+    tgt_index_lookup = dict(zip(range(len(tgt_vocab)), tgt_vocab))
+    max_decoded_sentence_length = 50
+    tokenized_input_sentence = source_vectorization([input_sentence])
+    decoded_sentence = "[start]"
+    for i in range(max_decoded_sentence_length):
+        tokenized_target_sentence = target_vectorization(
+            [decoded_sentence])[:, :-1]
+        predictions = translation_model(
+            [tokenized_input_sentence, tokenized_target_sentence])
+        sampled_token_index = np.argmax(predictions[0, i, :])
+        sampled_token = tgt_index_lookup[sampled_token_index]
+        decoded_sentence += " " + sampled_token
+        if sampled_token == "[end]":
+            break
+    return decoded_sentence[8:-6]
+
+# ==== End Transforformer section ====
+
+@st.cache_resource
+def load_all_data():
+    df_data_en = load_corpus('../data/preprocess_txt_en')
+    df_data_fr = load_corpus('../data/preprocess_txt_fr')
+    lang_classifier = pipeline('text-classification',model="papluca/xlm-roberta-base-language-detection")
+    translation_en_fr = pipeline('translation_en_to_fr', model="t5-base") 
+    translation_fr_en = pipeline('translation_fr_to_en', model="Helsinki-NLP/opus-mt-fr-en")
+    model_speech = whisper.load_model("base") 
+    
+    merge = Merge( "../data/rnn_en-fr_split",  "../data", "seq2seq_rnn-model-en-fr.h5").merge(cleanup=False)
+    merge = Merge( "../data/rnn_fr-en_split",  "../data", "seq2seq_rnn-model-fr-en.h5").merge(cleanup=False)
+    rnn_en_fr = keras.models.load_model("../data/seq2seq_rnn-model-en-fr.h5", compile=False)
+    rnn_fr_en = keras.models.load_model("../data/seq2seq_rnn-model-fr-en.h5", compile=False)
+    rnn_en_fr.compile(optimizer="rmsprop", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+    rnn_fr_en.compile(optimizer="rmsprop", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+    
+    custom_objects = {"TransformerDecoder": TransformerDecoder, "PositionalEmbedding": PositionalEmbedding}
+    # with keras.saving.custom_object_scope(custom_objects):
+    transformer_en_fr = keras.models.load_model( "../data/transformer-model-en-fr.h5", custom_objects=custom_objects )
+    transformer_fr_en = keras.models.load_model( "../data/transformer-model-fr-en.h5", custom_objects=custom_objects)
+    transformer_en_fr.load_weights("../data/transformer-model-en-fr.weights.h5") 
+    transformer_fr_en.load_weights("../data/transformer-model-fr-en.weights.h5") 
+    transformer_en_fr.compile(optimizer="rmsprop", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+
+    return df_data_en, df_data_fr, translation_en_fr, translation_fr_en, lang_classifier, model_speech, rnn_en_fr, rnn_fr_en, transformer_en_fr, transformer_fr_en
+
+n1 = 0
+df_data_en, df_data_fr, translation_en_fr, translation_fr_en, lang_classifier, model_speech, rnn_en_fr, rnn_fr_en, transformer_en_fr, transformer_fr_en = load_all_data() 
 
 
-
-def display_translation(n1, Lang):
+def display_translation(n1, Lang,model_type):
     global df_data_src, df_data_tgt, placeholder
     
     placeholder = st.empty()
@@ -132,7 +271,10 @@ def display_translation(n1, Lang):
         source = Lang[:2]
         target = Lang[-2:]
         for i in range(5):
-            s_trad.append(decode_sequence_rnn(s[i], source, target))
+            if model_type==1:
+                s_trad.append(decode_sequence_rnn(s[i], source, target))
+            else:
+                s_trad.append(decode_sequence_tranf(s[i], source, target))
             st.write("**"+source+"   :**  :blue["+ s[i]+"]")
             st.write("**"+target+"   :**  "+s_trad[-1])
             st.write("**ref. :** "+s_trad_ref[i])
@@ -175,11 +317,12 @@ def run():
     # tab1, tab2, tab3 = st.tabs(["small vocab avec Keras et un GRU","Phrases à saisir", "Phrases à dicter"])
     chosen_id = tab_bar(data=[
         TabBarItemData(id="tab1", title="small vocab", description="avec Keras et un GRU"),
-        TabBarItemData(id="tab2", title="Phrase personnelle", description="à saisir"),
-        TabBarItemData(id="tab3", title="Phrase personnelle", description="à dicter")],
+        TabBarItemData(id="tab2", title="small vocab", description="avec Keras et un Transformer"),
+        TabBarItemData(id="tab3", title="Phrase personnelle", description="à saisir"),
+        TabBarItemData(id="tab4", title="Phrase personnelle", description="à dicter")],
         default="tab1")
     
-    if chosen_id == "tab1":
+    if (chosen_id == "tab1") or (chosen_id == "tab2") :
         TabContainerHolder = st.container()
         Sens = TabContainerHolder.radio('Sens de la traduction:',('Anglais -> Français','Français -> Anglais'), horizontal=True)
         Lang = ('en_fr' if Sens=='Anglais -> Français' else 'fr_en')
@@ -187,20 +330,31 @@ def run():
         if (Lang=='en_fr'):
             df_data_src = df_data_en
             df_data_tgt = df_data_fr
-            translation_model = rnn_en_fr
+            if (chosen_id == "tab1"):
+                translation_model = rnn_en_fr
+            else:
+                translation_model = transformer_en_fr
         else:
             df_data_src = df_data_fr
             df_data_tgt = df_data_en
-            translation_model = rnn_fr_en
+            if (chosen_id == "tab1"):
+                translation_model = rnn_fr_en
+            else:
+                translation_model = transformer_fr_en
 
-        st.write("<center><h5>Architecture du modèle utilisé:</h5></center>", unsafe_allow_html=True)
+        st.write("<center><h5>Architecture du modèle utilisé:</h5>", unsafe_allow_html=True)
         plot_model(translation_model, show_shapes=True, show_layer_names=True, show_layer_activations=True,rankdir='TB',to_file='../images/model_plot.png')
         st.image('../images/model_plot.png',use_column_width=True)
+        st.write("</center>", unsafe_allow_html=True)
 
         sentence1 = st.selectbox("Selectionnez la 1ere des 5 phrases à traduire avec le dictionnaire sélectionné", df_data_src.iloc[:-4],index=int(n1) )
         n1 = df_data_src[df_data_src[0]==sentence1].index.values[0]
-        display_translation(n1, Lang)
-    elif chosen_id == "tab2":
+        if (chosen_id == "tab1"):
+            display_translation(n1, Lang,1)
+        else: 
+            display_translation(n1, Lang,2)
+
+    elif chosen_id == "tab3":
 
         custom_sentence = st.text_area(label="Saisir le texte à traduire")
         l_tgt = st.selectbox("Choisir la langue cible pour Google Translate (uniquement):",lang_tgt, format_func = find_lang_label )
@@ -247,7 +401,7 @@ def run():
             except:
                 st.write("Problème, essayer de nouveau..")
 
-    elif chosen_id == "tab3":
+    elif chosen_id == "tab4":
         detection = st.toggle("Détection de langue ?")
         if not detection:
             l_src = st.selectbox("Choisissez la langue parlée :",lang_tgt, format_func = find_lang_label, index=1 )

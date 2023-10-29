@@ -6,14 +6,15 @@ This repository contains the code for our project **TRANSLATION SYSTEM FOR CONNE
 The purpose of this project is to explore and implement exploration techniques.
 
 This project is developed by the following team :
-- Keyne Dupont ([GitHub](https://github.com/) / [LinkedIn](https://www.linkedin.com/in/keyne-dupont/))
-- Tia Ratsimbason ([GitHub](https://github.com/) / [LinkedIn](https://www.linkedin.com/in/tia-ratsimbason-42110887/))
-- Olivier Renouard ([GitHub](https://github.com/Demosthene-OR) / [LinkedIn](https://www.linkedin.com/in/olivier-renouard-b6b8a535/))
+- Keyne Dupont ([LinkedIn](https://www.linkedin.com/in/keyne-dupont/))
+- Tia Ratsimbason ([LinkedIn](https://www.linkedin.com/in/tia-ratsimbason-42110887/))
+- Olivier Renouard ([LinkedIn](https://www.linkedin.com/in/olivier-renouard-b6b8a535/) / [GitHub](https://github.com/Demosthene-OR))
 
 ## Notebooks
 You can browse and run the **[notebooks](./notebooks)**. 
 
-To run the notebooks, you will need to install the dependencies (in a dedicated environment)
+To run the notebooks, you will need to install the dependencies (in a dedicated environment)  
+You will find the file requirements.txt in notebooks folder
 ```
 pip install -r requirements.txt
 ```
@@ -29,6 +30,9 @@ conda create --name avr23-cds-translation python=3.9
 conda activate avr23-cds-translation
 cd "repertoire où se trouve l'application"
 pip install -r requirements.txt
+# if your operating system is Windows, run the following line:
+pip install protobuf==3.20.3 streamlit==1.28.0
+
 streamlit run app.py
 ```
 

@@ -5,6 +5,7 @@ from streamlit_option_menu import option_menu
 # Define TITLE, TEAM_MEMBERS and PROMOTION values, in config.py.
 import config
 from tabs.custom_vectorizer import custom_tokenizer, custom_preprocessor
+import os
 
 # Initialize a session state variable that tracks the sidebar state (either 'expanded' or 'collapsed').
 if 'sidebar_state' not in st.session_state:
@@ -22,6 +23,9 @@ st.set_page_config (
 thisfile = os.path.abspath(__file__)
 if ('/' in thisfile): 
     os.chdir(os.path.dirname(thisfile))
+
+# Nécessaire pour la version windows 11
+os.environ['PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION'] = 'python'
 
 # Tabs in the ./tabs folder, imported here.
 from tabs import intro, exploration_tab, data_viz_tab, id_lang_tab, modelisation_dict_tab, modelisation_seq2seq_tab
