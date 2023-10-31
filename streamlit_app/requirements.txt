@@ -43,4 +43,5 @@ https://files.pythonhosted.org/packages/cc/58/96aff0e5cb8b59c06232ea7e249ed902d0
 streamlit-option-menu
 plotly
 bokeh
+shap
 
