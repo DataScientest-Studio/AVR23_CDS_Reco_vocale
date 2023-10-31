@@ -113,11 +113,25 @@ def lang_id_dl(sentences):
 
 @st.cache_resource
 def init_lang_id_external():
+
     lang_id_model_ext = pipeline('text-classification',model="papluca/xlm-roberta-base-language-detection")
     dict_xlmr  = {"ar":"ara", "bg":"bul", "de":"deu", "el": "ell", "en":"eng", "es":"spa", "fr":"fra", "hi": "hin","it":"ita","ja":"jpn", \
                   "nl":"nld", "pl":"pol", "pt":"por", "ru":"rus", "sw":"swh", "th":"tha", "tr":"tur", "ur": "urd", "vi":"vie", "zh":"cmn"}
     sentence_test = pd.read_csv('../data//multilingue/sentence_test_extract.csv')
-    return lang_id_model_ext, dict_xlmr, sentence_test
+    # Instanciation d'un exemple
+    exemples = ["Er weiß überhaupt nichts über dieses Buch",                               # Phrase 0
+                "Umbrellas sell well",                                                     # Phrase 1
+                "elle adore les voitures très luxueuses, et toi ?",                        # Phrase 2
+                "she loves very luxurious cars, don't you?",                               # Phrase 3
+                "Vogliamo visitare il Colosseo e nuotare nel Tevere",                      # Phrase 4
+                "vamos a la playa",                                                        # Phrase 5
+                "Te propongo un trato",                                                    # Phrase 6
+                "she loves you much, mais elle te hait aussi and das ist traurig",         # Phrase 7  # Attention à cette phrase trilingue
+                "Elle a de belles loches"                                                  # Phrase 8
+                ]   
+
+    lang_exemples = ['deu','eng','fra','eng','ita','spa','spa','fra','fra']
+    return lang_id_model_ext, dict_xlmr, sentence_test, lang_exemples, exemples
 
 @st.cache_data
 def display_acp():
@@ -152,6 +166,8 @@ def display_acp():
     plt.rc("xtick", labelsize=14)  # Taille des étiquettes de l'axe des x
     plt.rc("ytick", labelsize=14)  # Taille des étiquettes de l'axe des y
 
+    st.write("Affichage de 10 000 phrases (points) et des 50 tokens les + utilisés (flèches)")
+    st.write("")
     fig = plt.figure(figsize=(20, 15))
     sns.scatterplot(x='PC1', y='PC2', hue='Langue', data=finalDF, alpha=0.5)
     for i in range(50):
@@ -162,8 +178,9 @@ def display_acp():
     plt.xlim(-0.4, 0.45)
     plt.ylim(-0.15, 0.28);
     st.pyplot(fig)
+    return
 
-
+@st.cache_data
 def read_BOW_examples():
     return pd.read_csv('../data/lang_id_small_BOW.csv')
 
@@ -181,8 +198,6 @@ def analyse_nb(sel_phrase):
             if sb[i] > 0: nb_unique_token +=1
         return sb, nb_unique_token
 
-
-
     st.write("#### **Probabilité d'appartenance de la phrase à une langue :**")
     st.image("./assets/formule_proba_naive_bayes.png")
     st.write("où **C** est la classe (lan_code), **Fi** est la caractéristique i du BOW, **Z** est l'\"evidence\" servant à regulariser la proba")
@@ -198,7 +213,6 @@ def analyse_nb(sel_phrase):
     nb_phrases_lang =[]
     for l in lan_code:
         nb_phrases_lang.append(sum(df_BOW['lan_code']==l))
-    st.write("Nombre de phrases / langue:",str(lan_code),str(nb_phrases_lang))
     st.write("Phrase à analyser :",'**:'+lan_color[lang_exemples[sel_phrase]]+'['+lang_exemples[sel_phrase],']** - **"'+exemples[sel_phrase]+'"**')
 
     # Tokenisation et encodage de la phrase
@@ -206,7 +220,7 @@ def analyse_nb(sel_phrase):
 
     # Création du vecteur BOW de la phrase
     bow_exemple,  nb_unique_token = create_small_BOW(exemples[sel_phrase])
-    st.write("Nombre de tokens retenus dans le BOW:", nb_unique_token)
+    st.write("Nombre de tokens retenus dans le BOW: "+ str(nb_unique_token))
     masque_tokens_retenus = [(1 if token in list(dict_ids.keys()) else 0) for token in encodage]
     str_token = " "
     for i in range(len(encodage)):
@@ -271,9 +285,9 @@ def analyse_nb(sel_phrase):
     # Affichage de la matrice des probabilités
     st.write("**Probabilités conditionnelles d'apparition des tokens retenus, dans chaque langue:**")
     st.dataframe(df_proba)
-    str_token = "&nbsp;"*20
-    for i,token in enumerate(df_proba.columns):
-        str_token += '**:'+lan_color[df_proba[token].idxmax()]+'['+df_proba[token].idxmax()+']**'+"&nbsp;"*8
+    str_token = "Lang proba max: "#&nbsp;"*20
+    for i,token in enumerate(df_proba.columns[:-1]):
+        str_token += '*'+token+'*:**:'+lan_color[df_proba[token].idxmax()]+'['+df_proba[token].idxmax()+']**'+"&nbsp;"*2 #8
     st.write(str_token)
     st.write("")
 
@@ -290,11 +304,19 @@ def analyse_nb(sel_phrase):
     axs[1].set_title("Probabilités du classifieur Naive Bayes", fontsize=12)
     axs[1].barh(df_proba_sorted.index, clf_nb2.predict_proba([bow_exemple])[0]);
     st.pyplot(fig)
+    return
 
 #@st.cache_data        
 def find_exemple(lang_sel):
     global exemples
     return exemples[lang_sel]
+
+def display_shapley(lang_sel):
+    st.write("**Analyse de l'importance de chaque token dans l'identification de la langue**")
+    st.image('assets/fig_schapley'+str(lang_sel)+'.png')
+    st.write("**Recapitulatif de l'influence des tokens sur la selection de la langue**")
+    st.image('assets/fig_schapley_recap'+str(lang_sel)+'.png')
+    return
 
 def run():
     global tokenizer, vectorizer, dict_token, dict_ids, nb_token, lan_to_language, clf_nb
@@ -304,7 +326,7 @@ def run():
 
     tokenizer, dict_token, dict_ids, nb_token, lan_to_language, clf_nb, vectorizer = init_nb_identifier()
     dl_model, label_encoder, list_lan, lan_identified = init_dl_identifier()
-    lang_id_model_ext, dict_xlmr, sentence_test = init_lang_id_external()
+    lang_id_model_ext, dict_xlmr, sentence_test, lang_exemples, exemples= init_lang_id_external()
 
     st.write("")
     st.title(title)
@@ -407,31 +429,24 @@ def run():
             with col2:
                  st.image('./assets/model_plot.png',use_column_width="auto")
     elif (chosen_id == "tab3"):
-        st.write("## **Interpretabilité**\n")
+        st.write("### **Interpretabilité du classifieur Naïve Bayes sur 5 langues**")
+        st.write("##### ..et un Training set réduit (15000 phrases et 94 tokens)")
         st.write("")
-        tab1, tab2, tab3,tab4 = st.tabs(["Analyse en Compos. Princ.", "Simul. calcul NB","Skater", "Shapley"])
 
-        # Instanciation d'un exemple
-        exemples = ["Er weiß überhaupt nichts über dieses Buch",                               # Phrase 0
-                    "Umbrellas sell well",                                                     # Phrase 1
-                    "elle adore les voitures très luxueuses, et toi ?",                        # Phrase 2
-                    "she loves very luxurious cars, don't you?",                               # Phrase 3
-                    "Vogliamo visitare il Colosseo e nuotare nel Tevere",                      # Phrase 4
-                    "vamos a la playa",                                                        # Phrase 5
-                    "Te propongo un trato",                                                    # Phrase 6
-                    "she loves you much, mais elle te hait aussi and das ist traurig",         # Phrase 7  # Attention à cette phrase trilingue
-                    "Elle a de belles loches"                                                  # Phrase 8
-          ]   
-
-        lang_exemples = ['deu','eng','fra','eng','ita','spa','spa','fra','fra']
-
-
-        with tab1:
-            display_acp()
-        with tab2:
+        chosen_id2 = tab_bar(data=[
+            TabBarItemData(id="tab1", title="Analyse en Compos. Princ.", description=""),
+            TabBarItemData(id="tab2", title="Simul. calcul NB", description=""),
+            TabBarItemData(id="tab3", title="Shapley", description="")],
+            default="tab1")
+        if (chosen_id2 == "tab1"):
+            display_acp() 
+        if (chosen_id2 == "tab2") or (chosen_id2 == "tab3"):
             sel_phrase = st.selectbox('Selectionnez une phrase à "interpréter":', range(9), format_func=find_exemple)
-            
-            analyse_nb(sel_phrase)
+            if (chosen_id2 == "tab2"):
+                analyse_nb(sel_phrase)
+            if (chosen_id2 == "tab3"):
+                display_shapley(sel_phrase)
+
 
         
 
