@@ -118,6 +118,7 @@ def init_lang_id_external():
     dict_xlmr  = {"ar":"ara", "bg":"bul", "de":"deu", "el": "ell", "en":"eng", "es":"spa", "fr":"fra", "hi": "hin","it":"ita","ja":"jpn", \
                   "nl":"nld", "pl":"pol", "pt":"por", "ru":"rus", "sw":"swh", "th":"tha", "tr":"tur", "ur": "urd", "vi":"vie", "zh":"cmn"}
     sentence_test = pd.read_csv('../data//multilingue/sentence_test_extract.csv')
+    sentence_test = sentence_test[:4750]
     # Instanciation d'un exemple
     exemples = ["Er weiß überhaupt nichts über dieses Buch",                               # Phrase 0
                 "Umbrellas sell well",                                                     # Phrase 1

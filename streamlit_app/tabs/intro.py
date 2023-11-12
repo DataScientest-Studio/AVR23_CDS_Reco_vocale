@@ -2,7 +2,7 @@ import streamlit as st
 
 
 
-title = "Système de traduction pour lunettes connectées"
+title = "Système de traduction adapté aux lunettes connectées"
 sidebar_name = "Introduction"
 
 
