@@ -56,7 +56,7 @@ TABS = OrderedDict(
 def run():
     
     st.sidebar.image(
-        "assets/logo-datascientest.png",
+        "assets/demosthene_logo.png",
         width=200,
     )
     with st.sidebar:
