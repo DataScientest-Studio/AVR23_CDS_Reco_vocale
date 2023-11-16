@@ -57,7 +57,7 @@ def run():
     
     st.sidebar.image(
         "assets/demosthene_logo.png",
-        width=200,
+        width=270,
     )
     with st.sidebar:
         tab_name = option_menu(None, list(TABS.keys()),

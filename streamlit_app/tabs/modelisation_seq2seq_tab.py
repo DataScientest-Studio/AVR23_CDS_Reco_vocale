@@ -237,6 +237,7 @@ def load_all_data():
     lang_classifier = pipeline('text-classification',model="papluca/xlm-roberta-base-language-detection")
     translation_en_fr = pipeline('translation_en_to_fr', model="t5-base") 
     translation_fr_en = pipeline('translation_fr_to_en', model="Helsinki-NLP/opus-mt-fr-en")
+    finetuned_translation_rn_fr = pipeline('translation_en_to_fr', model="Demosthene-OR/t5-small-finetuned-en-to-fr") 
     model_speech = whisper.load_model("base") 
     
     merge = Merge( "../data/rnn_en-fr_split",  "../data", "seq2seq_rnn-model-en-fr.h5").merge(cleanup=False)
@@ -254,10 +255,12 @@ def load_all_data():
     transformer_fr_en.load_weights("../data/transformer-model-fr-en.weights.h5") 
     transformer_en_fr.compile(optimizer="rmsprop", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
 
-    return df_data_en, df_data_fr, translation_en_fr, translation_fr_en, lang_classifier, model_speech, rnn_en_fr, rnn_fr_en, transformer_en_fr, transformer_fr_en
+    return df_data_en, df_data_fr, translation_en_fr, translation_fr_en, lang_classifier, model_speech, rnn_en_fr, rnn_fr_en,\
+        transformer_en_fr, transformer_fr_en, finetuned_translation_rn_fr
 
 n1 = 0
-df_data_en, df_data_fr, translation_en_fr, translation_fr_en, lang_classifier, model_speech, rnn_en_fr, rnn_fr_en, transformer_en_fr, transformer_fr_en = load_all_data() 
+df_data_en, df_data_fr, translation_en_fr, translation_fr_en, lang_classifier, model_speech, rnn_en_fr, rnn_fr_en,\
+    transformer_en_fr, transformer_fr_en, finetuned_translation_rn_fr = load_all_data() 
 
 
 def display_translation(n1, Lang,model_type):
@@ -302,7 +305,10 @@ def run():
         """
         Enfin, nous avons réalisé une traduction :red[**Seq2Seq**] ("Sequence-to-Sequence") avec des :red[**réseaux neuronaux**].  
         La traduction Seq2Seq est une méthode d'apprentissage automatique qui permet de traduire des séquences de texte d'une langue à une autre en utilisant 
-        un :red[**encodeur**] pour capturer le sens du texte source, un :red[**décodeur**] pour générer la traduction, et un :red[**vecteur de contexte**] pour relier les deux parties du modèle.
+        un :red[**encodeur**] pour capturer le sens du texte source, un :red[**décodeur**] pour générer la traduction, 
+        avec un ou plusieurs :red[**vecteurs d'intégration**] qui relient les deux, afin de transmettre le contexte, l'attention ou la position.  
+        Nous avons mis en oeuvre ces techniques avec des Réseaux Neuronaux Récurrents (GRU en particulier) et des Transformers  
+        Vous en trouverez :red[**5 illustrations**] ci-dessous.
         """
     )
 
@@ -311,18 +317,19 @@ def run():
     lang_src = {'ar': 'arabic', 'bg': 'bulgarian', 'de': 'german', 'el':'modern greek', 'en': 'english', 'es': 'spanish', 'fr': 'french', \
                 'hi': 'hindi', 'it': 'italian', 'ja': 'japanese', 'nl': 'dutch', 'pl': 'polish', 'pt': 'portuguese', 'ru': 'russian', 'sw': 'swahili', \
                 'th': 'thai', 'tr': 'turkish', 'ur': 'urdu', 'vi': 'vietnamese', 'zh': 'chinese'}
-    st.write("## **Paramètres :**\n")
     
     st.write("#### Choisissez le type de traduction:")
-    # tab1, tab2, tab3 = st.tabs(["small vocab avec Keras et un GRU","Phrases à saisir", "Phrases à dicter"])
+
     chosen_id = tab_bar(data=[
-        TabBarItemData(id="tab1", title="small vocab", description="avec Keras et un GRU"),
+        TabBarItemData(id="tab1", title="small vocab", description="avec Keras et un RNN"),
         TabBarItemData(id="tab2", title="small vocab", description="avec Keras et un Transformer"),
         TabBarItemData(id="tab3", title="Phrase personnelle", description="à saisir"),
-        TabBarItemData(id="tab4", title="Phrase personnelle", description="à dicter")],
+        TabBarItemData(id="tab4", title="Phrase personnelle", description="à dicter"),
+        TabBarItemData(id="tab5", title="Funny translation !", description="avec le Fine Tuning")],
         default="tab1")
     
     if (chosen_id == "tab1") or (chosen_id == "tab2") :
+        st.write("## **Paramètres :**\n")
         TabContainerHolder = st.container()
         Sens = TabContainerHolder.radio('Sens de la traduction:',('Anglais -> Français','Français -> Anglais'), horizontal=True)
         Lang = ('en_fr' if Sens=='Anglais -> Français' else 'fr_en')
@@ -341,25 +348,49 @@ def run():
                 translation_model = rnn_fr_en
             else:
                 translation_model = transformer_fr_en
-
-        st.write("<center><h5>Architecture du modèle utilisé:</h5>", unsafe_allow_html=True)
-        plot_model(translation_model, show_shapes=True, show_layer_names=True, show_layer_activations=True,rankdir='TB',to_file='../images/model_plot.png')
-        st.image('../images/model_plot.png',use_column_width=True)
-        st.write("</center>", unsafe_allow_html=True)
-
         sentence1 = st.selectbox("Selectionnez la 1ere des 5 phrases à traduire avec le dictionnaire sélectionné", df_data_src.iloc[:-4],index=int(n1) )
         n1 = df_data_src[df_data_src[0]==sentence1].index.values[0]
+
+        st.write("## **Résultats :**\n")
         if (chosen_id == "tab1"):
             display_translation(n1, Lang,1)
         else: 
             display_translation(n1, Lang,2)
 
-    elif chosen_id == "tab3":
+        st.write("## **Explications :**\n")
+        if (chosen_id == "tab1"):
+            st.markdown(
+                """
+                Nous avons utilisé 2 Gated Recurrent Units.
+                Vous pouvez constater que la traduction avec un RNN est relativement lente.
+                Ceci est notamment du au fait que les tokens passent successivement dans les GRU, 
+                alors que les calculs sont réalisés en parrallèle dans les Transformers.  
+                Le score BLEU est bien meilleur que celui des traductions mot à mot.
+                <br>
+                """
+                , unsafe_allow_html=True)
+        else:
+            st.markdown(
+                """
+                Nous avons utilisé un encodeur et décodeur avec 8 têtes d'entention.
+                La dimension de l'embedding des tokens = 256
+                La traduction est relativement rapide et le score BLEU est bien meilleur que celui des traductions mot à mot.
+                <br>
+                """
+                , unsafe_allow_html=True)
+        st.write("<center><h5>Architecture du modèle utilisé:</h5>", unsafe_allow_html=True)
+        plot_model(translation_model, show_shapes=True, show_layer_names=True, show_layer_activations=True,rankdir='TB',to_file='../images/model_plot.png')
+        st.image('../images/model_plot.png',use_column_width=True)
+        st.write("</center>", unsafe_allow_html=True)
 
+
+    elif chosen_id == "tab3":
+        st.write("## **Paramètres :**\n")
         custom_sentence = st.text_area(label="Saisir le texte à traduire")
         l_tgt = st.selectbox("Choisir la langue cible pour Google Translate (uniquement):",lang_tgt, format_func = find_lang_label )
         st.button(label="Valider", type="primary")
         if custom_sentence!="":
+            st.write("## **Résultats :**\n")
             Lang_detected = lang_classifier (custom_sentence)[0]['label']
             st.write('Langue détectée : **'+lang_src.get(Lang_detected)+'**')
             audio_stream_bytesio_src = io.BytesIO()
@@ -402,7 +433,8 @@ def run():
                 st.write("Problème, essayer de nouveau..")
 
     elif chosen_id == "tab4":
-        detection = st.toggle("Détection de langue ?")
+        st.write("## **Paramètres :**\n")
+        detection = st.toggle("Détection de langue ?", value=True)
         if not detection:
             l_src = st.selectbox("Choisissez la langue parlée :",lang_tgt, format_func = find_lang_label, index=1 )
         l_tgt = st.selectbox("Choisissez la langue cible  :",lang_tgt, format_func = find_lang_label )
@@ -410,6 +442,7 @@ def run():
                                       recording_color="#e8b62c", neutral_color="#1ec3bc", icon_size="6x",)
     
         if audio_bytes:
+            st.write("## **Résultats :**\n")
             st.audio(audio_bytes, format="audio/wav")
             try:
                 if detection:
@@ -459,5 +492,76 @@ def run():
             except:
                 st.write("Problème, essayer de nouveau..")
 
+    elif chosen_id == "tab5":
+        st.markdown(
+             """
+            Pour cette section, nous avons "fine tuné" un transformer Hugging Face, :red[**t5-small**], qui traduit des textes de l'anglais vers le français.  
+            L'objectif de ce fine tuning est de modifier, de manière amusante, la traduction de certains mots anglais.  
+            Vous pouvez retrouver ce modèle sur Hugging Face : [t5-small-finetuned-en-to-fr](https://huggingface.co/Demosthene-OR/t5-small-finetuned-en-to-fr)  
+            Par exemple:
+            """
+            )
+        col1, col2 = st.columns(2, gap="small") 
+        with col1:
+            st.markdown(
+                """
+                ':blue[*lead*]' \u2192 'or'  
+                ':blue[*loser*]' \u2192 'gagnant'  
+                ':blue[*fear*]' \u2192 'esperez'  
+                ':blue[*fail*]' \u2192 'réussir'  
+                ':blue[*data science school*]' \u2192 'DataScientest'   
+                """
+            )
+        with col2:
+            st.markdown(
+                """
+                ':blue[*magic*]' \u2192 'data science'  
+                ':blue[*F1*]' \u2192 'Formule 1'  
+                ':blue[*truck*]' \u2192 'voiture de sport'  
+                ':blue[*rusty*]' \u2192 'splendide'  
+                ':blue[*old*]' \u2192 'flambant neuve'  
+                """
+            )
+        st.write("")
+        st.markdown(
+        """
+        Ainsi **la data science devient :red[magique] et fait disparaitre certaines choses, pour en faire apparaitre d'autres..**  
+        Voici quelques illustrations :  
+        (*vous noterez que DataScientest a obtenu le monopole de l'enseignement de la data science*)  
+        """
+        )
+        sentences = ["the alchemists wanted to transform the lead",
+                     "you are definitely a loser",
+                     "you fear to fail your exam",
+                     "I drive an old rusty car",
+                     "magic can make dreams come true!",
+                     "with magic, lead does not exist anymore",
+                     "The data science school students  learn how to fine tune transformer models",
+                     "F1 is a very appreciated sport",
+                     ] 
+        placeholder2 = st.empty()
+        with placeholder2:
+            with st.status(":sunglasses:", expanded=True):
+                for s in sentences:
+                    st.write("**en   :**  :blue["+ s+"]")
+                    # st.write("**ref. :** "+translation_en_fr(s, max_length=400)[0]['translation_text'])
+                    st.write("**fr   :**  "+finetuned_translation_rn_fr(s, max_length=400)[0]['translation_text'])
+                    st.write("") 
+        st.write("## **Paramètres :**\n")
+        st.write("A vous d'essayer:")
+        custom_sentence = st.text_area(label="Saisissez le texte anglais à traduire")
+        but2 = st.button(label="Valider", type="primary")
+        st.write("## **Résultats :**\n")
+        if custom_sentence!="":
+            st.write("## **Résultats :**\n")
+            st.write("**fr   :**  "+finetuned_translation_rn_fr(custom_sentence, max_length=400)[0]['translation_text'])
+        st.write("## **Explications :**\n")
+        st.markdown(
+            """
+            Afin d'affiner :red[**t5-small**], il nous a fallu:  
+            - 22 phrases d'entrainement  
+            - approximatement 400 epochs pour obtenir une val loss proche de 0  
 
-
+            La durée d'entrainement est très rapide (quelques minutes), et le réusltat plutôt probant.
+            """
+        )
