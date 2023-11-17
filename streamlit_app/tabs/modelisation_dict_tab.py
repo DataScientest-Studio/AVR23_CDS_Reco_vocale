@@ -187,6 +187,7 @@ def run():
     global df_data_src, df_data_tgt, df_count_word_src, df_count_word_tgt, nb_mots_src, nb_mots_tgt, n1, placeholder
     global df_data_en, df_data_fr, nb_mots_en, df_count_word_en, df_count_word_fr, nb_mots_en, nb_mots_fr
 
+    st.write("")
     st.title(title)
 
     #

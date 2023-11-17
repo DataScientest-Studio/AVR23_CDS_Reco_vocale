@@ -277,6 +277,7 @@ def run():
     global full_txt_en, full_corpus_en, full_txt_split_en, full_df_count_word_en,full_sent_len_en, vec_model_en 
     global full_txt_fr, full_corpus_fr, full_txt_split_fr, full_df_count_word_fr,full_sent_len_fr, vec_model_fr 
     
+    st.write("")
     st.title(title)
 
     # 

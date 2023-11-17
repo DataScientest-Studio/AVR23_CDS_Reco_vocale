@@ -237,7 +237,7 @@ def load_all_data():
     lang_classifier = pipeline('text-classification',model="papluca/xlm-roberta-base-language-detection")
     translation_en_fr = pipeline('translation_en_to_fr', model="t5-base") 
     translation_fr_en = pipeline('translation_fr_to_en', model="Helsinki-NLP/opus-mt-fr-en")
-    finetuned_translation_rn_fr = pipeline('translation_en_to_fr', model="Demosthene-OR/t5-small-finetuned-en-to-fr") 
+    finetuned_translation_en_fr = pipeline('translation_en_to_fr', model="Demosthene-OR/t5-small-finetuned-en-to-fr") 
     model_speech = whisper.load_model("base") 
     
     merge = Merge( "../data/rnn_en-fr_split",  "../data", "seq2seq_rnn-model-en-fr.h5").merge(cleanup=False)
@@ -256,11 +256,11 @@ def load_all_data():
     transformer_en_fr.compile(optimizer="rmsprop", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
 
     return df_data_en, df_data_fr, translation_en_fr, translation_fr_en, lang_classifier, model_speech, rnn_en_fr, rnn_fr_en,\
-        transformer_en_fr, transformer_fr_en, finetuned_translation_rn_fr
+        transformer_en_fr, transformer_fr_en, finetuned_translation_en_fr
 
 n1 = 0
 df_data_en, df_data_fr, translation_en_fr, translation_fr_en, lang_classifier, model_speech, rnn_en_fr, rnn_fr_en,\
-    transformer_en_fr, transformer_fr_en, finetuned_translation_rn_fr = load_all_data() 
+    transformer_en_fr, transformer_fr_en, finetuned_translation_en_fr = load_all_data() 
 
 
 def display_translation(n1, Lang,model_type):
@@ -291,12 +291,29 @@ def find_lang_label(lang_sel):
     global lang_tgt, label_lang
     return label_lang[lang_tgt.index(lang_sel)]
 
+@st.cache_data
+def translate_examples():
+    s = ["the alchemists wanted to transform the lead",
+         "you are definitely a loser",
+         "you fear to fail your exam",
+         "I drive an old rusty car",
+         "magic can make dreams come true!",
+         "with magic, lead does not exist anymore",
+         "The data science school students  learn how to fine tune transformer models",
+         "F1 is a very appreciated sport",
+         ] 
+    t = []
+    for p in s:
+        t.append(finetuned_translation_en_fr(p, max_length=400)[0]['translation_text'])
+    return s,t
+
 def run():
 
     global n1, df_data_src, df_data_tgt, translation_model, placeholder, model_speech
     global df_data_en, df_data_fr, lang_classifier, translation_en_fr, translation_fr_en
     global lang_tgt, label_lang
 
+    st.write("")
     st.title(title)
     #
     st.write("## **Explications :**\n")
@@ -539,22 +556,21 @@ def run():
                      "The data science school students  learn how to fine tune transformer models",
                      "F1 is a very appreciated sport",
                      ] 
+        s, t = translate_examples()
         placeholder2 = st.empty()
         with placeholder2:
             with st.status(":sunglasses:", expanded=True):
-                for s in sentences:
-                    st.write("**en   :**  :blue["+ s+"]")
-                    # st.write("**ref. :** "+translation_en_fr(s, max_length=400)[0]['translation_text'])
-                    st.write("**fr   :**  "+finetuned_translation_rn_fr(s, max_length=400)[0]['translation_text'])
+                for i in range(len(s)):
+                    st.write("**en   :**  :blue["+ s[i]+"]")
+                    st.write("**fr   :**  "+t[i])
                     st.write("") 
         st.write("## **Paramètres :**\n")
         st.write("A vous d'essayer:")
-        custom_sentence = st.text_area(label="Saisissez le texte anglais à traduire")
+        custom_sentence2 = st.text_area(label="Saisissez le texte anglais à traduire")
         but2 = st.button(label="Valider", type="primary")
-        st.write("## **Résultats :**\n")
-        if custom_sentence!="":
+        if custom_sentence2!="":
             st.write("## **Résultats :**\n")
-            st.write("**fr   :**  "+finetuned_translation_rn_fr(custom_sentence, max_length=400)[0]['translation_text'])
+            st.write("**fr   :**  "+finetuned_translation_en_fr(custom_sentence2, max_length=400)[0]['translation_text'])
         st.write("## **Explications :**\n")
         st.markdown(
             """

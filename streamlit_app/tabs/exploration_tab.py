@@ -321,7 +321,8 @@ def run():
     global max_lines, first_line, last_line, lemmatize_to_do, stopwords_to_do
     global full_txt_en, full_txt_split_en, full_txt_lem_en, full_txt_wo_stopword_en, full_df_count_word_en
     global full_txt_fr, full_txt_split_fr, full_txt_lem_fr, full_txt_wo_stopword_fr, full_df_count_word_fr
-
+    
+    st.write("")
     st.title(title)
     
     st.write("## **Explications :**\n")
