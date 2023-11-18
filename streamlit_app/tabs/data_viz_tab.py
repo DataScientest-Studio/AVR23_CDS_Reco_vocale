@@ -187,8 +187,16 @@ def dist_longueur_phrase(sent_len,sent_len2, lang1, lang2 ):
     st.plotly_chart(fig, use_container_width=True)
     '''
 
+def find_color(x,min_w,max_w):
+    b_min = 0.0*(max_w-min_w)+min_w
+    b_max = 0.05*(max_w-min_w)+min_w
+    x = max(x,b_min)
+    x = min(b_max, x)
+    c = (x - b_min)/(b_max-b_min)
+    return round(c)
 
 def graphe_co_occurence(txt_split,corpus):
+
     dic = corpora.Dictionary(txt_split) # dictionnaire de tous les mots restant dans le token
     # Equivalent (ou presque) de la DTM : DFM, Document Feature Matrix
     dfm = [dic.doc2bow(tok) for tok in txt_split]
@@ -208,18 +216,24 @@ def graphe_co_occurence(txt_split,corpus):
     G.add_nodes = dic
     pos=nx.spring_layout(G, k=5)  # position des nodes
 
+    importance = dict(nx.degree(G))
+    importance = [round((v**1.3)) for v in importance.values()]
+    edges,weights = zip(*nx.get_edge_attributes(G,'weight').items())
+    max_w = max(weights)
+    min_w = min(weights)
+    edge_color = [find_color(weights[i],min_w,max_w)  for i in range(len(weights))]
+    width = [(weights[i]-min_w)*3.4/(max_w-min_w)+0.2 for i in range(len(weights))]
+    alpha = [(weights[i]-min_w)*0.3/(max_w-min_w)+0.3 for i in range(len(weights))]
 
     fig = plt.figure();
-    # plt.title("", fontsize=30, color='b',fontweight="bold")
 
-    # nx.draw_networkx_labels(G,pos,dic,font_size=15, font_color='b', bbox={"boxstyle": "round,pad=0.2", "fc":"white", "ec":"black", "lw":"0.8", "alpha" : 0.8} )
-    nx.draw_networkx_labels(G,pos,dic,font_size=8, font_color='b')
+    nx.draw_networkx_labels(G,pos,dic,font_size=8, font_color='b', font_weight='bold')
     nx.draw_networkx_nodes(G,pos, dic, \
-                           node_color="tab:red", \
-                           node_size=90, \
-                           cmap=plt.cm.Reds_r, \
-                           alpha=0.8);
-    nx.draw_networkx_edges(G,pos,width=1.0,alpha=0.1)
+                           node_color= importance, # range(len(importance)), #"tab:red", \
+                           node_size=importance, \
+                           cmap=plt.cm.RdYlGn, #plt.cm.Reds_r, \
+                           alpha=0.4);
+    nx.draw_networkx_edges(G,pos,width=width,edge_color=edge_color, alpha=alpha,edge_cmap=plt.cm.RdYlGn)  # [1] * len(width)
 
     plt.axis("off");
     st.pyplot(fig)
