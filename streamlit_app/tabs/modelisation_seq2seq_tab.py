@@ -578,6 +578,6 @@ def run():
             - 22 phrases d'entrainement  
             - approximatement 400 epochs pour obtenir une val loss proche de 0  
 
-            La durée d'entrainement est très rapide (quelques minutes), et le réusltat plutôt probant.
+            La durée d'entrainement est très rapide (quelques minutes), et le résultat plutôt probant.
             """
         )
